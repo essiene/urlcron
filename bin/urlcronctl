@@ -1,0 +1,16 @@
+#! /bin/bash
+
+NODENAME='urlcronctl@localhost'
+NODENAME_OBELISK='urlcron@localhost'
+COMMAND=$1
+
+EBIN_DIR="/usr/lib/erlang/lib/urlcron-1.0/ebin"
+
+erl \
+    -noshell \
+    -pa ${EBIN_DIR} \
+    -pa ebin \
+    -sname ${NODENAME} \
+    -s urlcronctl action ${COMMAND} \
+    -s init stop \
+    -extra urlcron@localhost \

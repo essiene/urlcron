@@ -1,0 +1,7 @@
+ebin
+*.beam
+*.html
+*.dump
+*.gz
+*.tar
+*.bz2
