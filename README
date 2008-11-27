@@ -1,0 +1,10 @@
+A simple erlang scheduler callback webservice.
+
+You submit a schedule:
+
+POST /schedule?name=NAME&time=TIME&calback="" (create new schedule)
+PUT /schedule/name?time=TIME&callback="" (updates the schedule)
+DELETE /schedule/name
+GET /schedule/name -> details
+GET /schedule/ -> all schedules json
+GET /stats/ -> various statistics
