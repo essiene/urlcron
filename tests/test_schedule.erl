@@ -3,7 +3,7 @@
 
 
 start_enabled_test() ->
-    StartTime = calendar:gregorian_seconds_to_datetime(calendar:datetime_to_gregorian_seconds(erlang:localtime()) + 60),
+    StartTime = urlcron_util:time_from_now(60),
     {ok, Pid} = urlcron_schedule:start_link(StartTime, "url"),
     Timer = urlcron_schedule:get_timer(Pid),
     Status = urlcron_schedule:get_status(Pid),

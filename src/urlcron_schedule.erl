@@ -2,6 +2,8 @@
 -behaviour(gen_fsm).
 
 -export([
+        start/2,
+        start/3,
         start_link/2,
         start_link/3,
         stop/1,
@@ -35,6 +37,13 @@
 -include("urlcron.hrl").
 
 % public api
+start(StartTime, Url) ->
+    start(StartTime, Url, enabled).
+
+start(StartTime, Url, Flag) ->
+    gen_fsm:start(?MODULE, [StartTime, Url, Flag], []).
+
+
 start_link(StartTime, Url) ->
     start_link(StartTime, Url, enabled).
 

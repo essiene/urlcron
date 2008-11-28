@@ -37,11 +37,20 @@ new(Starttime, Url) ->
 
 init([]) ->
     error_logger:info_msg("~p: Started~n", [?MODULE]),
-    {ok, []}.
+    {ok, gb_trees:empty()}.
 
 handle_call({new, StartTime, Url}, _From, State) ->
-    %create new fsm here assume we get a response
-    {reply, {ok, autoname, {StartTime, Url}}, State};
+    case urlcron_schedule:start(StartTime, Url) of
+        {ok, Pid} ->
+            Name = pid_to_list(Pid),
+            NewState = gb_trees:enter(Name, Pid, State),
+            Reply = {ok, {NewState, StartTime, Url}};
+        {error, Reason} ->
+            NewState = State,
+            Reply = {error, Reason}
+    end,
+
+    {reply, Reply, NewState};
 
 handle_call(Request, _From, State) ->
     {reply, {error, {illegal_request, Request}}, State}.

@@ -4,8 +4,7 @@
 
 new_anonymous_schedule_test() ->
     urlcron_scheduler:start(),
-    Starttime = "starttime",
+    Starttime = urlcron_util:time_from_now(60),
     Url = "url",
-    Expected = {ok, autoname, {Starttime, Url}},
-    ?assertEqual(Expected, urlcron_scheduler:new(Starttime, Url)),
+    {ok, {_Name, Starttime, Url}} = urlcron_scheduler:new(Starttime, Url),
     urlcron_scheduler:stop().
