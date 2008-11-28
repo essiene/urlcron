@@ -1,0 +1,1 @@
+-define(SCHEDULER, urlcron_scheduler).
