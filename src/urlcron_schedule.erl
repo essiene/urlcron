@@ -2,9 +2,7 @@
 -behaviour(gen_fsm).
 
 -export([
-        start/2,
         start/3,
-        start_link/2,
         start_link/3,
         stop/1,
         get_timer/1,
@@ -37,15 +35,8 @@
 -include("urlcron.hrl").
 
 % public api
-start(StartTime, Url) ->
-    start(StartTime, Url, enabled).
-
 start(StartTime, Url, Flag) ->
     gen_fsm:start(?MODULE, [StartTime, Url, Flag], []).
-
-
-start_link(StartTime, Url) ->
-    start_link(StartTime, Url, enabled).
 
 start_link(StartTime, Url, Flag) ->
     gen_fsm:start_link(?MODULE, [StartTime, Url, Flag], []).
@@ -88,7 +79,8 @@ completed(Request, _From, State) ->
 % Generic gen_fsm callbacks
 
 init([StartTime, Url, enabled]) ->
-    TimerRef = gen_fsm:send_event_after(30000, wakeup),
+    MilliSecs = urlcron_util:get_datetime_diff(StartTime),
+    TimerRef = gen_fsm:send_event_after(MilliSecs, wakeup),
     {ok, inactive_enabled, schedule_data:new(StartTime, Url, TimerRef)};
 
 init([StartTime, Url, disabled]) ->

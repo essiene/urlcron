@@ -4,3 +4,6 @@ thought out.
 
 - We still need to figure out how to persist schedules properly
 so we can restart them when the scheduler is starting up.
+
+- When the scheduler is going down, we need to "save" or "stop" 
+all ongoing schedules

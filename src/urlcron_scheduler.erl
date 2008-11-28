@@ -40,7 +40,7 @@ init([]) ->
     {ok, gb_trees:empty()}.
 
 handle_call({new, StartTime, Url}, _From, State) ->
-    case urlcron_schedule:start(StartTime, Url) of
+    case urlcron_schedule:start(StartTime, Url, enabled) of
         {ok, Pid} ->
             Name = pid_to_list(Pid),
             NewState = gb_trees:enter(Name, Pid, State),
@@ -63,7 +63,6 @@ handle_cast(_Request, State) ->
 
 handle_info(_Info, State) ->
     {noreply, State}.
-
 
 terminate(_Reason, _State) ->
     ok.
