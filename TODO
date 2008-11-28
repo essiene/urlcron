@@ -1,0 +1,6 @@
+- We will need the schedule fsm to be supervised, so if
+it crashes it can recover properly. This will need to be well
+thought out.
+
+- We still need to figure out how to persist schedules properly
+so we can restart them when the scheduler is starting up.
