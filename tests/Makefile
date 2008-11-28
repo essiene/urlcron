@@ -8,11 +8,13 @@ ERLC_FLAGS=-W -o $(EBIN_DIR)
 	erlc $(ERL_FLAGS) $(ERLC_FLAGS) $<
 
 
-OBJECTS=test_scheduler
+OBJECTS=test_scheduler \
+		test_timecalc
 
 
 test: compile
 	erl -noshell $(ERL_FLAGS) -s test_scheduler test -s init stop
+	erl -noshell $(ERL_FLAGS) -s test_timecalc test -s init stop
 	@echo all done
 
 
