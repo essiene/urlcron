@@ -20,6 +20,7 @@ start_link(Config) ->
     gen_server:start_link({local, ?SCHEDULER}, ?MODULE, Config, []).
 
 init(_Config) ->
+    error_logger:info_msg("~p: Started~n", [?MODULE]),
     {ok, []}.
 
 handle_call(Request, _From, State) ->
