@@ -76,8 +76,8 @@ completed(_Request, State) ->
 completed(Request, _From, State) ->
     {reply, {error, {illegal_Request, Request}}, completed, State}.
 
-% Generic gen_fsm callbacks
 
+% Generic gen_fsm callbacks
 init([StartTime, Url, enabled]) ->
     MilliSecs = urlcron_util:get_datetime_diff(StartTime),
     TimerRef = gen_fsm:send_event_after(MilliSecs, wakeup),
@@ -97,7 +97,6 @@ handle_sync_event(get_status, _From, StateName, #schedule_data{start_time=StartT
 
 handle_sync_event(Request, _From, StateName, State) ->
     {reply, {error, {illegal_request, Request}}, StateName, State}.
-
 
 
 

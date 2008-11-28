@@ -4,7 +4,8 @@
         start/0,
         start_link/1,
         stop/0,
-        new/2
+        new/2,
+        new/3
     ]).
 
 -export([
@@ -30,7 +31,11 @@ stop() ->
     gen_server:cast(?SCHEDULER, stop).
 
 new(Starttime, Url) ->
-    gen_server:call(?SCHEDULER, {new, Starttime, Url}).
+    Name = urlcron_util:gen_schedule_name(),
+    new(Name, Starttime, Url).
+
+new(Name, Starttime, Url) ->
+    gen_server:call(?SCHEDULER, {new, Name, Starttime, Url}).
 
 
 % Gen server callbacks
@@ -39,12 +44,11 @@ init([]) ->
     error_logger:info_msg("~p: Started~n", [?MODULE]),
     {ok, gb_trees:empty()}.
 
-handle_call({new, StartTime, Url}, _From, State) ->
+handle_call({new, Name, StartTime, Url}, _From, State) ->
     case urlcron_schedule:start(StartTime, Url, enabled) of
         {ok, Pid} ->
-            Name = pid_to_list(Pid),
             NewState = gb_trees:enter(Name, Pid, State),
-            Reply = {ok, {NewState, StartTime, Url}};
+            Reply = {ok, {Name, StartTime, Url}};
         {error, Reason} ->
             NewState = State,
             Reply = {error, Reason}
