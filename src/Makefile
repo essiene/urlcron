@@ -13,7 +13,8 @@ $(EBIN_DIR)/%.app: %.app
 	@cp $< $(EBIN_DIR)
 
 
-OBJECTS= urlcron_schedule urlcron_scheduler \
+OBJECTS= schedule_data urlcron_schedule \
+		 urlcron_scheduler \
 		webservice urlcron_mochiweb \
 		urlcron_app urlcron_sup \
 		urlcron urlcronctl
