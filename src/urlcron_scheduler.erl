@@ -1,7 +1,10 @@
 -module(urlcron_scheduler).
 -behaviour(gen_server).
 -export([
-        start_link/1
+        start/0,
+        start_link/1,
+        stop/0,
+        new/2
     ]).
 
 -export([
@@ -15,16 +18,36 @@
 
 -include("urlcron.hrl").
 
+% Public API
 
-start_link(Config) ->
-    gen_server:start_link({local, ?SCHEDULER}, ?MODULE, Config, []).
+start() ->
+    gen_server:start({local, ?SCHEDULER}, ?MODULE, [], []).
 
-init(_Config) ->
+start_link(_Config) ->
+    gen_server:start_link({local, ?SCHEDULER}, ?MODULE, [], []).
+
+stop() ->
+    gen_server:cast(?SCHEDULER, stop).
+
+new(Starttime, Url) ->
+    gen_server:call(?SCHEDULER, {new, Starttime, Url}).
+
+
+% Gen server callbacks
+
+init([]) ->
     error_logger:info_msg("~p: Started~n", [?MODULE]),
     {ok, []}.
 
+handle_call({new, StartTime, Url}, _From, State) ->
+    %create new fsm here assume we get a response
+    {reply, {ok, autoname, {StartTime, Url}}, State};
+
 handle_call(Request, _From, State) ->
     {reply, {error, {illegal_request, Request}}, State}.
+
+handle_cast(stop, State) ->
+    {stop, normal, State};
 
 handle_cast(_Request, State) ->
     {noreply, State}.
