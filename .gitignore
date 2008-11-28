@@ -5,3 +5,5 @@ ebin
 *.gz
 *.tar
 *.bz2
+*.swp
+*.swo
