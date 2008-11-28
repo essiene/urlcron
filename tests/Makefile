@@ -15,6 +15,7 @@ OBJECTS= test_schedule \
 test: compile
 	erl -noshell $(ERL_FLAGS) -s test_schedule test -s init stop
 	erl -noshell $(ERL_FLAGS) -s test_scheduler test -s init stop
+	erl -noshell $(ERL_FLAGS) -s test_timecalc test -s init stop
 	@echo all done
 
 
