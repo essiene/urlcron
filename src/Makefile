@@ -15,7 +15,6 @@ $(EBIN_DIR)/%.app: %.app
 
 OBJECTS= urlcron_scheduler \
 		webservice urlcron_mochiweb \
-		urlcron_config \
 		urlcron_app urlcron_sup \
 		urlcron urlcronctl
 

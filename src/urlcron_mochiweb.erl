@@ -1,13 +1,7 @@
 -module(urlcron_mochiweb).
--export([start/0, start/1, stop/0, loop/1]).
+-export([start/1, stop/0, loop/1]).
 
 %% External API
-
-start() ->
-    start([
-            {listen, "0.0.0.0"}, 
-            {port, 8118}
-        ]).
 
 start(Config) ->
     Loop = fun (Req) ->
@@ -16,8 +10,8 @@ start(Config) ->
            mochiweb_http:start([
                    {name, ?MODULE}, 
                    {loop, Loop}, 
-                   {ip, urlcron_config:get(Config, listen)},
-                   {port, urlcron_config:get(Config, port)}
+                   {ip, Config:get(server.listen)},
+                   {port, Config:get(server.port)}
                ]).
 
 stop() ->

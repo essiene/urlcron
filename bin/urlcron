@@ -4,15 +4,9 @@ NODENAME='urlcron@localhost'
 VERSION=1.0
 EBIN_DIR=/usr/lib/erlang/lib/urlcron-1.0/ebin/
 
-. /etc/urlcron.conf
-
 erl \
     -sname ${NODENAME} \
     -noshell \
     -pa ${EBIN_DIR} \
     -pa ./ebin \
-    -urlcron listen "'${LISTEN}'" \
-    -urlcron port "${PORT}" \
-    -urlcron log_home "'${LOG_HOME}'" \
-    -urlcron data_home "'${DATA_HOME}'" \
     -s urlcron

@@ -1,7 +1,7 @@
 -module(urlcron_scheduler).
 -behaviour(gen_server).
 -export([
-        start_link/0
+        start_link/1
     ]).
 
 -export([
@@ -16,11 +16,10 @@
 -include("urlcron.hrl").
 
 
-start_link() ->
-    gen_server:start_link(?SCHEDULER, ?MODULE, [], []).
+start_link(Config) ->
+    gen_server:start_link({local, ?SCHEDULER}, ?MODULE, Config, []).
 
-
-init([]) ->
+init(_Config) ->
     {ok, []}.
 
 handle_call(Request, _From, State) ->

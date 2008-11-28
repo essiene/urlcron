@@ -4,13 +4,14 @@
     {vsn, "1.0"}, 
     {modules, 
         [ 
-            urlcron_main, urlcron_app, 
-            urlcron_sup, urlcron_mochiweb
+            urlcron_scheduler, webservice,
+            urlcron_mochiweb, urlcron_app,
+            urlcron_sup, urlcron, urlcronctl
         ]
    },
 
   {registered, 
-      [urlcron_sup, urlcron_mochiweb]
+      [urlcron_sup, urlcron_mochiweb, urlcron_scheduler]
   },
 
   {applications, 

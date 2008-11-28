@@ -43,12 +43,16 @@ upgrade() ->
 %% @doc supervisor callback.
 init([]) ->
 
-    Config = urlcron_config:new(),
+    Config = erlcfg:new("/etc/urlcron.conf"),
 
     Web = {urlcron_mochiweb, 
         {urlcron_mochiweb, start, [Config]}, 
         permanent, 5000, worker, dynamic},
 
-    Processes = [Web],
+    Scheduler = {?SCHEDULER,
+        {urlcron_scheduler, start_link, [Config]},
+        permanent, 5000, worker, [urlcron_scheduler]},
+
+    Processes = [Scheduler, Web],
 
     {ok, {{one_for_one, 10, 10}, Processes}}.
