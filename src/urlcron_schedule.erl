@@ -14,13 +14,7 @@
         inactive_enabled/3,
 
         inactive_disabled/2,
-        inactive_disabled/3,
-
-        active/2,
-        active/3,
-
-        completed/2,
-        completed/3
+        inactive_disabled/3
     ]).
 
 -export([
@@ -52,30 +46,26 @@ stop(Schedule) ->
 
 % gen_fsm states callbacks
 
+inactive_enabled(wakeup, State) ->
+    % call url here
+    % save result back to db
+    {stop, normal, State};
+
 inactive_enabled(_Request, State) ->
     {nextstate, inactive_enabled, State}.
 
 inactive_enabled(Request, _From, State) ->
     {reply, {error, {illegal_Request, Request}}, inactive_enabled, State}.
 
+
+inactive_disabled(wakeup, State) ->
+    {nextstate, inactive_disabled, State};
+
 inactive_disabled(_Request, State) ->
     {nextstate, inactive_disabled, State}.
 
 inactive_disabled(Request, _From, State) ->
     {reply, {error, {illegal_Request, Request}}, inactive_disabled, State}.
-
-active(_Request, State) ->
-    {nextstate, active, State}.
-
-active(Request, _From, State) ->
-    {reply, {error, {illegal_Request, Request}}, active, State}.
-
-completed(_Request, State) ->
-    {nextstate, completed, State}.
-
-completed(Request, _From, State) ->
-    {reply, {error, {illegal_Request, Request}}, completed, State}.
-
 
 % Generic gen_fsm callbacks
 init([StartTime, Url, enabled]) ->

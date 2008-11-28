@@ -17,3 +17,10 @@ start_disabled_test() ->
     ?assertEqual({StartTime, "url", none, inactive_disabled}, Status),
     urlcron_schedule:stop(Pid).
 
+schedule_runs_and_exists_test() ->
+    StartTime = urlcron_util:get_future_time(1000),
+    {ok, Pid} = urlcron_schedule:start_link(StartTime, "url", enabled),
+    ?assert(is_process_alive(Pid) == true),
+    timer:sleep(2000),
+    ?assert(is_process_alive(Pid) == false).
+
