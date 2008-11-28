@@ -46,7 +46,8 @@ stop(Schedule) ->
 
 % gen_fsm states callbacks
 
-inactive_enabled(wakeup, State) ->
+inactive_enabled(wakeup, #schedule_data{url=Url}=State) ->
+    error_logger:info_msg("Waking up to call: ~s", [Url]),
     % call url here
     % save result back to db
     {stop, normal, State};
@@ -71,10 +72,15 @@ inactive_disabled(Request, _From, State) ->
 init([StartTime, Url, enabled]) ->
     MilliSecs = urlcron_util:get_datetime_diff(StartTime),
     TimerRef = gen_fsm:send_event_after(MilliSecs, wakeup),
-    {ok, inactive_enabled, schedule_data:new(StartTime, Url, TimerRef)};
+    Data = schedule_data:new(StartTime, Url, TimerRef),
+
+    error_logger:info_msg("New schedule created ~p", [Data]),
+    {ok, inactive_enabled, Data};
 
 init([StartTime, Url, disabled]) ->
-    {ok, inactive_disabled, schedule_data:new(StartTime, Url)}.
+    Data = schedule_data:new(StartTime, Url),
+    error_logger:info_msg("New schedule created ~p", [Data]),
+    {ok, inactive_disabled, Data}.
 
 
 

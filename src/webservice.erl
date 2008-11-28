@@ -24,10 +24,8 @@ get("/new", Req) ->
     QueryString = Req:parse_qs(),
     StartTime = todate(QueryString),    
     Url = get_value("url", QueryString),
-    Name = get_value("url", QueryString),
-    io:fwrite("~p~n", [StartTime]),
-    io:fwrite("~p~n", [urlcron_timecalc:date_diff(StartTime)]),
-    RetVal = urlcron_scheduler:new(StartTime, Url),
+    Name = get_value("name", QueryString),
+    RetVal = urlcron_scheduler:new(Name, StartTime, Url),
     Req:ok({"text/plain", io_lib:format("~p", [RetVal])});
 
 get("/", Req) ->
