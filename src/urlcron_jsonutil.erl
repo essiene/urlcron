@@ -4,28 +4,26 @@
         ]).
 
 
-json_response(Response) ->
-    case Response of 
-        {ok, {Name, StartTime, Url}} ->
-            {{Year, Month, Date}, {Hour, Min, Sec}} = StartTime,
-            StrStartTime = io_lib:format("~p/~p/~p ~p:~p:~p", [Year, Month, Date, Hour, Min, Sec]),            
-            jsonify(1, Name, StrStartTime, Url);
-        {ok, {Name, Details}} ->
-            StrDetails = io_lib:format("~p", [Details]),
-            StrName = io_lib:format("~p", [Name]),
-            jsonify(1, StrName, StrDetails);
-        {ok, Details} ->
-            StrDetails = io_lib:format("~p", [Details]),
-            jsonify(1, StrDetails);
-        {error, Details} ->
-            StrDetails = io_lib:format("~p", [Details]),
-            jsonify(0, StrDetails);
-        List ->
-            Fun = fun(A) -> 
-                    json_response(A)
-                  end,
-            lists:map(Fun, List)
-    end.    
+json_response({ok, {Name, StartTime, Url}}) ->
+    {{Year, Month, Date}, {Hour, Min, Sec}} = StartTime,
+    StrStartTime = io_lib:format("~p/~p/~p ~p:~p:~p", [Year, Month, Date, Hour, Min, Sec]),            
+    jsonify(1, Name, StrStartTime, Url);
+
+json_response({ok, {Name, Details}}) ->    
+    jsonify(1, Name, Details);
+
+json_response({ok, Details}) ->
+    jsonify(1, Details);
+
+json_response({error, Details}) ->
+    StrDetails = io_lib:format("~p", [Details]),
+    jsonify(0, StrDetails);
+
+json_response(List) ->
+    Fun = fun(A) -> 
+            json_response(A)
+          end,
+    lists:map(Fun, List).
 
 
 jsonify(Code, Name, StrStartTime, Url) ->

@@ -7,7 +7,12 @@
     ]).
 
 -export([
-        create_new_schedule/1
+        create_new_schedule/1,
+        view_schedule/0,
+        view_schedule/1,
+        delete_schedule/0,
+        delete_schedule/1,
+        update_schedule/2
     ]).
 
 
@@ -39,16 +44,12 @@ delete("/schedule/" ++ Name, Req) ->
     Response = delete_schedule(Name),
     Req:ok({"text/javascript", mochijson2:encode(Response)}).
 
-get("/schedule", Req) ->
-    QueryString = Req:parse_qs(),
-    Format = get_value("format", QueryString),
-    Response = view_schedule(Format),
+get("/schedule/", Req) ->
+    Response = view_schedule(),
     Req:ok({"text/javascript", mochijson2:encode(Response)});
 
 get("/schedule/" ++ Name, Req) ->
-    QueryString = Req:parse_qs(),
-    Format = get_value("format", QueryString),
-    Response = view_schedule(Name, Format),
+    Response = view_schedule(Name),
     Req:ok({"text/javascript", mochijson2:encode(Response)});
 
 get("/stats/", Req) ->
@@ -79,30 +80,25 @@ get_value(Key, TupleList) ->
     end.            
 
 
-view_schedule(Format) ->
+view_schedule() ->
     %Response = urlcron_scheduler:view_all()
     StartTime = {{2008, 12, 11}, {16, 12, 12}},
     Url = "http://localhost:8118",
     Name = "xmas",
     Response = [
-                    {ok, {Name, StartTime, Url}}, 
+                    {ok, {Name, StartTime, Url}},
+                    {ok, {Name, StartTime, Url}},
                     {ok, {Name, StartTime, Url}},
                     {ok, {Name, StartTime, Url}}
                ],
-    case Format of 
-        "json" ->
-            urlcron_jsonutil:json_response(Response)
-    end.            
+    urlcron_jsonutil:json_response(Response).
 
-view_schedule(Name, Format) ->
+view_schedule(Name) ->
     %Response = urlcron_scheduler:view_all()
     StartTime = {{2008, 12, 11}, {16, 12, 12}},
     Url = "http://localhost:8118",
     Response = {ok, {Name, StartTime, Url}},
-    case Format of 
-        "json" ->
-            urlcron_jsonutil:json_response(Response)
-    end.            
+    urlcron_jsonutil:json_response(Response).
 
 
 delete_schedule() ->
