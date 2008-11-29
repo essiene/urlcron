@@ -9,6 +9,7 @@ ERLC_FLAGS=-W -o $(EBIN_DIR)
 
 
 OBJECTS= test_util \
+		 test_schedule_store \
 		 test_schedule \
 		 test_scheduler \
 		 test_webservice
@@ -16,6 +17,7 @@ OBJECTS= test_util \
 
 test: compile
 	erl -noshell $(ERL_FLAGS) -s test_util test -s init stop
+	erl -noshell $(ERL_FLAGS) -s test_schedule_store test -s init stop
 	erl -noshell $(ERL_FLAGS) -s test_schedule test -s init stop
 	erl -noshell $(ERL_FLAGS) -s test_scheduler test -s init stop
 	erl -noshell $(ERL_FLAGS) -s test_webservice test -s init stop
