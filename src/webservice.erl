@@ -1,6 +1,9 @@
 -module(webservice).
 -export([
-       get/2
+       get/2,
+       post/2,
+       delete/2,
+       put/2
     ]).
 
 get_value(Key, TupleList) ->
@@ -20,33 +23,33 @@ todate(QueryString) ->
     Ss = erlang:list_to_integer(get_value("seconds", QueryString)),
     {{YY, MM, DD}, {Hh, Mm, Ss}}.
 
-get("/new", Req) ->
+post("/schedule", Req) ->
     QueryString = Req:parse_qs(),
     {StartTime, Url, Name} = get_basic_params(QueryString),
     RetVal = urlcron_scheduler:new(Name, StartTime, Url),
-    Req:ok({"text/plain", io_lib:format("~p", [RetVal])});
+    Req:ok({"text/plain", io_lib:format("~p", [RetVal])}).
 
-get("/update" ++ Name, Req) ->
+put("/schedule/" ++ Name, Req) ->
     QueryString = Req:parse_qs(),
     {_StartTime, _Url, _Name} = get_basic_params(QueryString),    
     %call update function
-    Req:ok({"text/plain", io_lib:format("~p:~p", [Name, QueryString])});
+    Req:ok({"text/plain", io_lib:format("~p:~p", [Name, QueryString])}).
 
-get("/delete/all", Req) ->
+delete("/schedule/all", Req) ->
     %call delete_all function
     Req:ok({"text/plain", io_lib:format("~p", [all])});
 
-get("/delete" ++ Name, Req) ->
+delete("/schedule/" ++ Name, Req) ->
     %call delete function
-    Req:ok({"text/plain", io_lib:format("~p", [Name])});
+    Req:ok({"text/plain", io_lib:format("~p", [Name])}).
 
-get("/view/all/", Req) ->
+get("/schedule/all/", Req) ->
     QueryString = Req:parse_qs(),
     Format = get_value("format", QueryString),
     %call view all function
     Req:ok({"text/plain", io_lib:format("~p:~p", [all, Format])});
 
-get("/view/" ++ Name, Req) ->
+get("/schedule/" ++ Name, Req) ->
     QueryString = Req:parse_qs(),
     Format = get_value("format", QueryString),
     %call view function
