@@ -19,14 +19,16 @@ ensure_started(App) ->
 %% @doc Start the urlcron server.
 start() ->
     ensure_started(crypto),
+    ensure_started(inets),
     application:start(urlcron).
 
 status() ->
-    [{pqueueserv, "Alive"}, {callserv, "Alive"}, {chanserv, "Alive"}].
+    [{webservice, "Alive"}, {scheduler, "Alive"}].
 
 %% @spec stop() -> ok
 %% @doc Stop the urlcron server.
 stop() ->
     Res = application:stop(urlcron),
+    application:stop(inets),
     application:stop(crypto),
     Res.

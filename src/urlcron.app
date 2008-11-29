@@ -15,7 +15,7 @@
   },
 
   {applications, 
-      [kernel, stdlib, crypto]
+      [kernel, stdlib, crypto, inets]
   },
 
   {mod, 
