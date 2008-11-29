@@ -6,13 +6,10 @@
        put/2
     ]).
 
-get_value(Key, TupleList) ->
-    case lists:keysearch(Key, 1, TupleList) of
-        {value, {Key, Value}} ->
-            Value;
-        false ->
-            []
-    end.            
+-export([
+        create_new_schedule/1
+    ]).
+
 
 todate(QueryString) ->
     YY = erlang:list_to_integer(get_value("year", QueryString)),
@@ -25,9 +22,8 @@ todate(QueryString) ->
 
 post("/schedule", Req) ->
     QueryString = Req:parse_qs(),
-    {StartTime, Url, Name} = get_basic_params(QueryString),
-    RetVal = urlcron_scheduler:new(Name, StartTime, Url),
-    Req:ok({"text/plain", io_lib:format("~p", [RetVal])}).
+    Response = create_new_schedule(QueryString),
+    Req:ok({"text/javascript", mochijson2:encode(Response)}).
 
 put("/schedule/" ++ Name, Req) ->
     QueryString = Req:parse_qs(),
@@ -74,3 +70,36 @@ get_basic_params(QueryString) ->
     Name = get_value("name", QueryString),
     {StartTime, Url, Name}.
 
+get_value(Key, TupleList) ->
+    case lists:keysearch(Key, 1, TupleList) of
+        {value, {Key, Value}} ->
+            Value;
+        false ->
+            []
+    end.            
+
+
+create_new_schedule(QueryString) ->
+    {StartTime, Url, Name} = get_basic_params(QueryString),
+    case urlcron_scheduler:new(Name, StartTime, Url) of
+        {ok, {Name, StartTime, Url}} ->
+            {{Year, Month, Date}, {Hour, Min, Sec}} = StartTime,
+            StrStartTime = io_lib:format("~p/~p/~p ~p:~p:~p", [Year, Month, Date, Hour, Min, Sec]),
+
+            {struct, 
+                [
+                    {<<"status">>, 1},
+                    {<<"name">>, list_to_binary(Name)},
+                    {<<"starttime">>, list_to_binary(StrStartTime)},
+                    {<<"url">>, list_to_binary(Url)}
+                ]
+            };
+        {error, Reason} ->
+            StrReason = io_lib:format("~p", [Reason]),
+            {struct,
+                [
+                    {<<"status">>, 0},
+                    {<<"detail">>, list_to_binary(StrReason)}
+                ]
+            }
+    end.
