@@ -35,7 +35,7 @@ put("/schedule/" ++ Name, Req) ->
     %call update function
     Req:ok({"text/plain", io_lib:format("~p:~p", [Name, QueryString])}).
 
-delete("/schedule/all", Req) ->
+delete("/schedule/", Req) ->
     %call delete_all function
     Req:ok({"text/plain", io_lib:format("~p", [all])});
 
@@ -43,7 +43,7 @@ delete("/schedule/" ++ Name, Req) ->
     %call delete function
     Req:ok({"text/plain", io_lib:format("~p", [Name])}).
 
-get("/schedule/all/", Req) ->
+get("/schedule/", Req) ->
     QueryString = Req:parse_qs(),
     Format = get_value("format", QueryString),
     %call view all function
