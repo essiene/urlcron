@@ -7,3 +7,6 @@ so we can restart them when the scheduler is starting up.
 
 - When the scheduler is going down, we need to "save" or "stop" 
 all ongoing schedules
+
+- Need to support different HTTP methods, HTTP headers, etc
+when submitting url

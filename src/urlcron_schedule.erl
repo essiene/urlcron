@@ -48,8 +48,7 @@ stop(Schedule) ->
 
 inactive_enabled(wakeup, #schedule_data{url=Url}=State) ->
     error_logger:info_msg("Waking up to call: ~s", [Url]),
-    % call url here
-    % save result back to db
+    {_Status, _Detail} = http:request(url),
     {stop, normal, State};
 
 inactive_enabled(_Request, State) ->
@@ -57,7 +56,6 @@ inactive_enabled(_Request, State) ->
 
 inactive_enabled(Request, _From, State) ->
     {reply, {error, {illegal_Request, Request}}, inactive_enabled, State}.
-
 
 inactive_disabled(wakeup, State) ->
     {nextstate, inactive_disabled, State};

@@ -41,6 +41,15 @@ new(Name, Starttime, Url) ->
 % Gen server callbacks
 
 init([]) ->
+    case inets:start() of
+        ok ->
+            ok;
+        {error, {already_started, inets}} ->
+            ok;
+        Other ->
+            Other
+    end,
+
     error_logger:info_msg("~p: Started~n", [?MODULE]),
     {ok, gb_trees:empty()}.
 
