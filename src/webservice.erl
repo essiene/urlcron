@@ -21,39 +21,39 @@ todate(QueryString) ->
     {{YY, MM, DD}, {Hh, Mm, Ss}}.
 
 post("/schedule", Req) ->
-    QueryString = Req:parse_qs(),
+    QueryString = Req:parse_post(),
     Response = create_new_schedule(QueryString),
     Req:ok({"text/javascript", mochijson2:encode(Response)}).
 
 put("/schedule/" ++ Name, Req) ->
     QueryString = Req:parse_qs(),
     {_StartTime, _Url, _Name} = get_basic_params(QueryString),    
-    %call update function
-    Req:ok({"text/plain", io_lib:format("~p:~p", [Name, QueryString])}).
+    Response = update_schedule(Name, QueryString),
+    Req:ok({"text/javascript", mochijson2:encode(Response)}).
 
 delete("/schedule/", Req) ->
-    %call delete_all function
-    Req:ok({"text/plain", io_lib:format("~p", [all])});
+    Response = delete_schedule(),
+    Req:ok({"text/javascript", mochijson2:encode(Response)});
 
 delete("/schedule/" ++ Name, Req) ->
-    %call delete function
-    Req:ok({"text/plain", io_lib:format("~p", [Name])}).
+    Response = delete_schedule(Name),
+    Req:ok({"text/javascript", mochijson2:encode(Response)}).
 
-get("/schedule/", Req) ->
+get("/schedule", Req) ->
     QueryString = Req:parse_qs(),
     Format = get_value("format", QueryString),
-    %call view all function
-    Req:ok({"text/plain", io_lib:format("~p:~p", [all, Format])});
+    Response = view_schedule(Format),
+    Req:ok({"text/javascript", mochijson2:encode(Response)});
 
 get("/schedule/" ++ Name, Req) ->
     QueryString = Req:parse_qs(),
     Format = get_value("format", QueryString),
-    %call view function
-    Req:ok({"text/plain", io_lib:format("~p:~p", [Name, Format])});
+    Response = view_schedule(Name, Format),
+    Req:ok({"text/javascript", mochijson2:encode(Response)});
 
-get("/stats", Req) ->
+get("/stats/", Req) ->
     %statistical data
-    Req:ok({"text/plain", io_lib:format("~p", [stats])});
+    Req:ok({"text/plain", io_lib:format("~p", [all_ok])});
 
 get("/", Req) ->
     get("", Req);
@@ -79,27 +79,51 @@ get_value(Key, TupleList) ->
     end.            
 
 
+view_schedule(Format) ->
+    %Response = urlcron_scheduler:view_all()
+    StartTime = {{2008, 12, 11}, {16, 12, 12}},
+    Url = "http://localhost:8118",
+    Name = "xmas",
+    Response = [
+                    {ok, {Name, StartTime, Url}}, 
+                    {ok, {Name, StartTime, Url}},
+                    {ok, {Name, StartTime, Url}}
+               ],
+    case Format of 
+        "json" ->
+            urlcron_jsonutil:json_response(Response)
+    end.            
+
+view_schedule(Name, Format) ->
+    %Response = urlcron_scheduler:view_all()
+    StartTime = {{2008, 12, 11}, {16, 12, 12}},
+    Url = "http://localhost:8118",
+    Response = {ok, {Name, StartTime, Url}},
+    case Format of 
+        "json" ->
+            urlcron_jsonutil:json_response(Response)
+    end.            
+
+
+delete_schedule() ->
+    %Response = urlcron_scheduler:delete_all(),
+    Response = {ok, "All Schedules Deleted"},
+    urlcron_jsonutil:json_response(Response).
+
+delete_schedule(Name) ->
+    %Response = urlcron_scheduler:delete(Name),
+    Response = {ok, {Name, "Deleted"}},
+    urlcron_jsonutil:json_response(Response).
+
+
+update_schedule(Name, QueryString) ->
+    {StartTime, Url, _Name} = get_basic_params(QueryString),
+    %Response = urlcron_scheduler:update(Name, StartTime, Url),
+    Response = {ok, {Name, StartTime, Url}},
+    urlcron_jsonutil:json_response(Response).
+
+
 create_new_schedule(QueryString) ->
     {StartTime, Url, Name} = get_basic_params(QueryString),
-    case urlcron_scheduler:new(Name, StartTime, Url) of
-        {ok, {Name, StartTime, Url}} ->
-            {{Year, Month, Date}, {Hour, Min, Sec}} = StartTime,
-            StrStartTime = io_lib:format("~p/~p/~p ~p:~p:~p", [Year, Month, Date, Hour, Min, Sec]),
-
-            {struct, 
-                [
-                    {<<"status">>, 1},
-                    {<<"name">>, list_to_binary(Name)},
-                    {<<"starttime">>, list_to_binary(StrStartTime)},
-                    {<<"url">>, list_to_binary(Url)}
-                ]
-            };
-        {error, Reason} ->
-            StrReason = io_lib:format("~p", [Reason]),
-            {struct,
-                [
-                    {<<"status">>, 0},
-                    {<<"detail">>, list_to_binary(StrReason)}
-                ]
-            }
-    end.
+    Response = urlcron_scheduler:new(Name, StartTime, Url),
+    urlcron_jsonutil:json_response(Response).
