@@ -14,6 +14,7 @@ $(EBIN_DIR)/%.app: %.app
 
 
 OBJECTS= urlcron_util \
+		 urlcron_jsonutil \
 		 schedule_data urlcron_schedule \
 		 urlcron_scheduler \
 		webservice urlcron_mochiweb \
