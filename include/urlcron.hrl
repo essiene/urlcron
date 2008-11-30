@@ -11,7 +11,7 @@
         name, % unique
         process = undefined,
         start_time = undefined,
-        time_created = undefined,
+        time_created = urlcron_util:get_future_time(0),
         time_started = undefined,
         time_completed = undefined,
         url = undefined,

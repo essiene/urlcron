@@ -9,7 +9,8 @@
 
 -export([
         add/5,
-        get/1
+        get/1,
+        update/1
     ]).
 
 -include("urlcron.hrl").
@@ -40,10 +41,8 @@ destroy(Config) ->
 
 add(Name, Process, StartTime, Url, Status) ->
     Schedule = #schedule{name=Name, process=Process, start_time=StartTime, url=Url, status=Status},
-    Fun= fun() ->
-            mnesia:write(Schedule)
-    end,
-    transaction(Fun).
+    save(Schedule).
+
 
 
 get(Name) ->
@@ -54,6 +53,15 @@ get(Name) ->
             [] ->
                 {error, not_found}
         end
+    end,
+    transaction(Fun).
+
+update(Schedule) ->
+    save(Schedule).
+
+save(Schedule) ->
+    Fun= fun() ->
+            mnesia:write(Schedule)
     end,
     transaction(Fun).
 

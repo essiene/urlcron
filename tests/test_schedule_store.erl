@@ -16,6 +16,17 @@ get_non_existing_test() ->
     Expected = {error, not_found},
     ?assertEqual(Expected, Result).
 
+update_test() ->
+    Schedule = schedule_store:get("schedule1"),
+    Process = Schedule#schedule.process,
+    TimeCreated = Schedule#schedule.time_created,
+    UpdatedSchedule = Schedule#schedule{url="NewUrl", status=disabled, fetch_status=ok},
+    schedule_store:update(UpdatedSchedule),
+
+    NewSchedule = schedule_store:get("schedule1"),
+    Expected = #schedule{name="schedule1", process=Process, time_created=TimeCreated, status=disabled, fetch_status=ok, start_time=start_time, url="NewUrl"},
+    ?assertEqual(Expected, NewSchedule).
+
 destroy_test() ->
     schedule_store:destroy(erlcfg:new("urlcron.conf")).
 
