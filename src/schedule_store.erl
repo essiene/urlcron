@@ -48,8 +48,12 @@ add(Name, Process, StartTime, Url, Status) ->
 
 get(Name) ->
     Fun = fun() ->
-        [Schedule] = mnesia:read({schedule, Name}), 
-        Schedule
+        case mnesia:read({schedule, Name}) of
+            [Schedule] -> 
+                Schedule;
+            [] ->
+                {error, not_found}
+        end
     end,
     transaction(Fun).
 

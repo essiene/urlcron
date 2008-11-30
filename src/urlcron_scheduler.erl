@@ -6,7 +6,8 @@
         start_link/1,
         stop/0,
         new/2,
-        new/3
+        new/3,
+        get_status/1
     ]).
 
 -export([
@@ -41,6 +42,9 @@ new(Starttime, Url) ->
 new(Name, Starttime, Url) ->
     gen_server:call(?SCHEDULER, {new, Name, Starttime, Url}).
 
+get_status(Name) ->
+    gen_server:call(?SCHEDULER, {status, Name}).
+
 
 % Gen server callbacks
 
@@ -65,13 +69,23 @@ handle_call({new, Name, StartTime, Url}, _From, State) ->
             case schedule_store:add(Name, Pid, StartTime, Url, enabled) of
                 {error, Reason} ->
                     Reply = {error, Reason};
-                _Response ->
+                ok ->
                     Reply = {ok, {Name, StartTime, Url}}
             end;
         {error, Reason} ->
             Reply = {error, Reason}
     end,
 
+    {reply, Reply, State};
+
+handle_call({status, Name}, _From, State) ->
+    case schedule_store:get(Name) of
+        {error, not_found} ->
+            Reply = {error, not_found};
+        #schedule{name=Name, start_time=StartTime, url=Url, status=Status} ->
+            Reply = {Name, StartTime, Url, Status}
+    end,
+        
     {reply, Reply, State};
 
 handle_call(Request, _From, State) ->
