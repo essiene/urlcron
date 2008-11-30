@@ -1,8 +1,7 @@
 -define(SCHEDULER, urlcron_scheduler).
 
 -record(schedule_data, {
-        start_time,
-        url,
+        name,
         timer
         }).
 
@@ -10,16 +9,15 @@
 
 -record(schedule, {
         name, % unique
-        process,
-        start_time,
-        time_created,
-        time_started,
-        time_completed,
-        url,
-        fetch_status,
-        http_status,
-        http_headers,
-        http_content,
-        timer,
-        status % enabled | disabled | active | completed
+        process = undefined,
+        start_time = undefined,
+        time_created = undefined,
+        time_started = undefined,
+        time_completed = undefined,
+        url = undefined,
+        fetch_status = undefined,
+        http_status = undefined,
+        http_headers = undefined,
+        http_content = undefined,
+        status = disabled % enabled | disabled | active | completed
         }).

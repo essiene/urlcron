@@ -1,11 +1,11 @@
 EBIN_DIR= ../ebin
 INCLUDE_DIR= ../include
 
-ERL_FLAGS=-pa $(EBIN_DIR) -I $(INCLUDE_DIR)
-ERLC_FLAGS=-W -o $(EBIN_DIR)
+ERL_FLAGS=-pa $(EBIN_DIR) -I $(INCLUDE_DIR) -sname urlcronunittest@localhost
+ERLC_FLAGS=-W -o $(EBIN_DIR) -pa $(EBIN_DIR) -I$(INCLUDE_DIR)
 
 %.beam: %.erl
-	erlc $(ERL_FLAGS) $(ERLC_FLAGS) $<
+	erlc $(ERLC_FLAGS) $<
 
 
 OBJECTS= test_util \

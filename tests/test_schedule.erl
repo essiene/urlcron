@@ -4,24 +4,21 @@
 
 start_enabled_test() ->
     StartTime = urlcron_util:get_future_time(600000),
-    {ok, Pid} = urlcron_schedule:start_link(StartTime, "url", enabled),
-    Timer = urlcron_schedule:get_timer(Pid),
-    Status = urlcron_schedule:get_status(Pid),
-    ?assertEqual({StartTime, "url", Timer, inactive_enabled}, Status),
+    {ok, Pid} = urlcron_schedule:start_link("schedule01", StartTime),
+    ?assert(is_process_alive(Pid) == true),
     urlcron_schedule:stop(Pid).
 
 start_disabled_test() ->
     StartTime = urlcron_util:get_future_time(600000),
-    {ok, Pid} = urlcron_schedule:start_link(StartTime, "url", disabled),
-    Status = urlcron_schedule:get_status(Pid),
-    ?assertEqual({StartTime, "url", none, inactive_disabled}, Status),
+    {ok, Pid} = urlcron_schedule:start_link("schedule02", StartTime),
+    ?assert(is_process_alive(Pid) == true),
     urlcron_schedule:stop(Pid).
 
 schedule_runs_and_exists_test() ->
     inets:start(),
     urlcron_mochiweb:start(),
     StartTime = urlcron_util:get_future_time(1000),
-    {ok, Pid} = urlcron_schedule:start_link(StartTime, "http://localhost:8118", enabled),
+    {ok, Pid} = urlcron_schedule:start_link("schedule03", StartTime),
     ?assert(is_process_alive(Pid) == true),
     timer:sleep(2000),
     ?assert(is_process_alive(Pid) == false),
