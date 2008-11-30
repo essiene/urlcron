@@ -8,7 +8,8 @@
     ]).
 
 -export([
-        add/5
+        add/5,
+        get/1
     ]).
 
 -include("urlcron.hrl").
@@ -39,9 +40,20 @@ destroy(Config) ->
 
 add(Name, Process, StartTime, Url, Status) ->
     Schedule = #schedule{name=Name, process=Process, start_time=StartTime, url=Url, status=Status},
-    Trans = fun() ->
+    Fun= fun() ->
             mnesia:write(Schedule)
     end,
+    transaction(Fun).
+
+
+get(Name) ->
+    Fun = fun() ->
+        [Schedule] = mnesia:read({schedule, Name}), 
+        Schedule
+    end,
+    transaction(Fun).
+
+transaction(Trans) ->
     case mnesia:transaction(Trans) of
         {atomic, Result} ->
             Result;
