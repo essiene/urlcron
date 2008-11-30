@@ -16,12 +16,7 @@ OBJECTS= test_util \
 
 
 test: compile
-	erl -noshell $(ERL_FLAGS) -s test_util test -s init stop
-	erl -noshell $(ERL_FLAGS) -s test_schedule_store test -s init stop
-	erl -noshell $(ERL_FLAGS) -s test_schedule test -s init stop
-	erl -noshell $(ERL_FLAGS) -s test_scheduler test -s init stop
-	erl -noshell $(ERL_FLAGS) -s test_webservice test -s init stop
-	@echo all done
+	erl -noshell $(ERL_FLAGS) $(foreach obj, $(OBJECTS), -s $(obj) test) -s init stop
 
 
 compile: ${OBJECTS:%=%.beam}
