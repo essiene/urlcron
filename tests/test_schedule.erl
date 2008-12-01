@@ -38,7 +38,6 @@ fetch_url_test() ->
     #schedule{url_status=UrlStatus, url_content=UrlContent, status=Status, pid=Pid} = schedule_store:get("schedule4"),
     ?assertEqual({200, "fetch_url_test", completed, undefined}, {UrlStatus, UrlContent, Status, Pid}),
 
-
     urlcron_mochiweb:stop(),
     urlcron_scheduler:stop(),
     schedule_store:destroy(Config).

@@ -2,7 +2,8 @@
 -export([
         add/5,
         get/1,
-        update/1
+        update/1,
+        update/2
     ]).
 
 -export([
@@ -56,10 +57,33 @@ get(Name) ->
     end,
     transaction(Fun).
 
+
+
+update(Schedule, []) ->
+    update(Schedule);
+
+update(Schedule, [{start_time, Value} | Rest]) when is_record(Schedule, schedule) ->
+    NewSchedule = Schedule#schedule{start_time = Value},
+    update(NewSchedule, Rest);
+
+update(Schedule, [{url, Value} | Rest]) when is_record(Schedule, schedule) ->
+    NewSchedule = Schedule#schedule{url = Value},
+    update(NewSchedule, Rest);
+
+update(Name, ValueList) ->
+    case schedule_store:get(Name) of
+        {error, not_found} ->
+            {error, not_found};
+        #schedule{status=completed} ->
+            {error, schedule_already_completed};
+        Schedule ->
+            update(Schedule, ValueList)
+    end.
+
 update(Schedule) ->
     save(Schedule).
 
-save(Schedule) ->
+save(Schedule) when is_record(Schedule, schedule) ->
     Fun= fun() ->
             mnesia:write(Schedule)
     end,

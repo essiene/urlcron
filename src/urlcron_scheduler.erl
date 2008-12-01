@@ -105,6 +105,14 @@ handle_call({get, Name}, _From, State) ->
             {reply, {ok, Schedule}, State}
     end;
 
+handle_call({set, Name, url, Url}, _From, State) ->
+    case schedule_store:update(Name, [{url, Url}]) of
+        {error, Reason} ->
+            {reply, {error, Reason}, State};
+        ok ->
+            {reply, ok, State}
+    end;
+
 handle_call(Request, _From, State) ->
     {reply, {error, {illegal_request, Request}}, State}.
 
