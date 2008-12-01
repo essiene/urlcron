@@ -16,17 +16,9 @@
     ]).
 
 
-todate(QueryString) ->
-    YY = erlang:list_to_integer(get_value("year", QueryString)),
-    MM = erlang:list_to_integer(get_value("month", QueryString)),
-    DD = erlang:list_to_integer(get_value("day", QueryString)),
-    Hh = erlang:list_to_integer(get_value("hour", QueryString)),
-    Mm = erlang:list_to_integer(get_value("minute", QueryString)),
-    Ss = erlang:list_to_integer(get_value("seconds", QueryString)),
-    {{YY, MM, DD}, {Hh, Mm, Ss}}.
-
 post("/schedule", Req) ->
     QueryString = Req:parse_post(),
+    io:format("QueryString: ~p~n", [QueryString]),
     Response = create_new_schedule(QueryString),
     Req:ok({"text/javascript", mochijson2:encode(Response)}).
 
@@ -123,3 +115,14 @@ create_new_schedule(QueryString) ->
     {StartTime, Url, Name} = get_basic_params(QueryString),
     Response = urlcron_scheduler:new(Name, StartTime, Url),
     urlcron_jsonutil:json_response(Response).
+
+
+todate(QueryString) ->
+    YY = erlang:list_to_integer(get_value("year", QueryString)),
+    MM = erlang:list_to_integer(get_value("month", QueryString)),
+    DD = erlang:list_to_integer(get_value("day", QueryString)),
+    Hh = erlang:list_to_integer(get_value("hour", QueryString)),
+    Mm = erlang:list_to_integer(get_value("minute", QueryString)),
+    Ss = erlang:list_to_integer(get_value("seconds", QueryString)),
+    {{YY, MM, DD}, {Hh, Mm, Ss}}.
+
