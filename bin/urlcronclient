@@ -1,0 +1,25 @@
+#! /usr/bin/env escript
+
+-record(args, {
+    command,
+    name,
+    url,
+    time
+}).
+
+
+main(Args) ->
+    ParsedArg = parse_args(Args),
+    run_cmd(ParsedArg).
+
+
+parse_args(Args) ->
+    parse_args(Args, #args{}).
+
+parse_args([], ArgsRecord) ->
+    ArgsRecord;
+
+parse_args(["-new" | Rest], ArgsRecord) ->
+    NewArgsRecord = ArgsRecord#args{command=new},
+    parse_args(Rest, NewArgsRecord).
+    

@@ -48,6 +48,11 @@ get("/stats/", Req) ->
     %statistical data
     Req:ok({"text/plain", io_lib:format("~p", [all_ok])});
 
+get("/echo/" ++ Name, Req) ->
+    %statistical data
+    Req:ok({"text/plain", Name});
+
+
 get("/", Req) ->
     get("", Req);
 
@@ -113,9 +118,16 @@ update_schedule(Name, QueryString) ->
 
 create_new_schedule(QueryString) ->
     {StartTime, Url, Name} = get_basic_params(QueryString),
+
+    case Name of
+        [] ->
+            Response = urlcron_scheduler:new(StartTime, Url);
+        Data ->
+            Response = urlcron_scheduler:new(Name, StartTime, Url)
+    end,
+
     Response = urlcron_scheduler:new(Name, StartTime, Url),
     urlcron_jsonutil:json_response(Response).
-
 
 todate(QueryString) ->
     YY = erlang:list_to_integer(get_value("year", QueryString)),

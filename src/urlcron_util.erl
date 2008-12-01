@@ -3,7 +3,8 @@
         get_datetime_diff/2,
         get_datetime_diff/1,
         get_future_time/1,
-        gen_schedule_name/0
+        gen_schedule_name/0,
+        urlopen/1
        ]).
 
 
@@ -24,3 +25,18 @@ get_future_time(MilliSeconds) when is_integer(MilliSeconds) ->
 gen_schedule_name() ->
     {_Mega, Secs, Milli} = erlang:now(),
     "schedule." ++ integer_to_list(Secs) ++ "." ++ integer_to_list(Milli).
+
+urlopen(Url) -> 
+    TimeStarted = urlcron_util:get_future_time(0),
+
+    case http:request(Url) of 
+        {error, Reason} ->
+            Result = {error, undefined, Reason};
+        {ok, {{_Version, Code, _Detail}, Headers, Content}} ->
+            Result = {Code, Headers, Content}
+    end,
+
+    TimeCompleted = urlcron_util:get_future_time(0),
+
+    {TimeStarted, TimeCompleted, Result}.
+       

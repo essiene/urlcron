@@ -2,11 +2,15 @@
 it crashes it can recover properly. This will need to be well
 thought out.
 
-- We still need to figure out how to persist schedules properly
-so we can restart them when the scheduler is starting up.
+- We need to implement schedule restarting on scheduler restart
 
 - When the scheduler is going down, we need to "save" or "stop" 
 all ongoing schedules
 
 - Need to support different HTTP methods, HTTP headers, etc
 when submitting url
+
+
+- We should not be able to re-create and "EXISTING" schedule, only update it.
+
+- Why can't we create schedules with 'atom' names?
