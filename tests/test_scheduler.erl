@@ -20,6 +20,10 @@ new_anonymous_schedule_test() ->
     {ok, Name} = urlcron_scheduler:create(Starttime, "url"),
     ?assertEqual(1, string:str(Name, "schedule.")).
 
+new_schedule_invalid_start_time_test() ->
+    Starttime = urlcron_util:get_future_time(999),
+    ?assertEqual({error, schedule_will_never_run}, urlcron_scheduler:create(Starttime, "url")).
+
 get_test() ->
     StartTime = urlcron_util:get_future_time(6000),
     {ok, "schedule02"} = urlcron_scheduler:create("schedule02", StartTime, "http://boo.com"),
