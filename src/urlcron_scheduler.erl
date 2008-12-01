@@ -112,11 +112,36 @@ handle_call({set, Name, url, Url}, _From, State) ->
             {reply, ok, State}
     end;
 
+handle_call({enable, Name}, _From, State) ->
+    Found = fun
+        (#schedule{status=completed}) ->
+            {reply, {error, schedule_already_completed}, State};
+        (#schedule{status=enabled}) ->
+            {reply, ok, State};
+        (#schedule{status=disabled}=Schedule) ->
+            StartTime = Schedule#schedule.start_time,
+            case urlcron_schedule:start(Name, StartTime) of
+                {error, Reason} ->
+                    {reply, {error, Reason}, State};
+                {ok, Pid} ->
+                    NewSchedule = Schedule#schedule{status=enabled, pid=Pid},
+                    schedule_store:update(NewSchedule),
+                    {reply, ok, State}
+            end
+    end,
+
+    if_found_schedule({Name, State}, Found);
+
 handle_call({disable, Name}, _From, State) ->
-    Found = fun(Schedule) ->
+    Found = fun
+        (#schedule{status=completed}) ->
+            {reply, {error, schedule_already_completed}, State};
+        (#schedule{status=enabled}=Schedule) ->
             urlcron_schedule:stop(Schedule#schedule.pid),
             NewSchedule = Schedule#schedule{status=disabled, pid=undefined},
             schedule_store:update(NewSchedule),
+            {reply, ok, State};
+        (#schedule{status=disabled}) ->
             {reply, ok, State}
     end,
 
