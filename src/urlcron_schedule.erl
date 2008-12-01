@@ -3,7 +3,6 @@
 
 -export([
         start/2,
-        start_link/2,
         stop/1,
         get_timer/1
     ]).
@@ -27,9 +26,6 @@
 % public api
 start(Name, StartTime) ->
     gen_fsm:start(?MODULE, [Name, StartTime], []).
-
-start_link(Name, StartTime) ->
-    gen_fsm:start_link(?MODULE, [Name, StartTime], []).
 
 %update these apis to use Name, instead of the schedule PID
 get_timer(Schedule) ->

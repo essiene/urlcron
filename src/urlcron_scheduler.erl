@@ -98,12 +98,11 @@ handle_call({create, Name, StartTime, Url}, _From, State) ->
     end;
 
 handle_call({get, Name}, _From, State) ->
-    case schedule_store:get(Name) of
-        {error, not_found} ->
-            {reply, {error, not_found}, State};
-        Schedule ->
+    Found = fun(Schedule) -> 
             {reply, {ok, Schedule}, State}
-    end;
+    end,
+
+    if_found_schedule({Name, State}, Found);
 
 handle_call({set, Name, url, Url}, _From, State) ->
     case schedule_store:update(Name, [{url, Url}]) of
@@ -112,6 +111,17 @@ handle_call({set, Name, url, Url}, _From, State) ->
         ok ->
             {reply, ok, State}
     end;
+
+handle_call({disable, Name}, _From, State) ->
+    Found = fun(Schedule) ->
+            urlcron_schedule:stop(Schedule#schedule.pid),
+            NewSchedule = Schedule#schedule{status=disabled, pid=undefined},
+            schedule_store:update(NewSchedule),
+            {reply, ok, State}
+    end,
+
+    if_found_schedule({Name, State}, Found);
+            
 
 handle_call(Request, _From, State) ->
     {reply, {error, {illegal_request, Request}}, State}.
@@ -131,3 +141,12 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {noreply, State}.
+
+
+if_found_schedule({Name, State}, Fun) ->
+    case schedule_store:get(Name) of 
+        {error, not_found} ->
+            {reply, {error, not_found}, State};
+        Schedule ->
+            Fun(Schedule)
+    end.
