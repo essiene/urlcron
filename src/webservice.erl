@@ -16,14 +16,6 @@
     ]).
 
 
-todate(QueryString) ->
-    YY = erlang:list_to_integer(get_value("year", QueryString)),
-    MM = erlang:list_to_integer(get_value("month", QueryString)),
-    DD = erlang:list_to_integer(get_value("day", QueryString)),
-    Hh = erlang:list_to_integer(get_value("hour", QueryString)),
-    Mm = erlang:list_to_integer(get_value("minute", QueryString)),
-    Ss = erlang:list_to_integer(get_value("seconds", QueryString)),
-    {{YY, MM, DD}, {Hh, Mm, Ss}}.
 
 post("/schedule", Req) ->
     QueryString = Req:parse_post(),
@@ -55,6 +47,11 @@ get("/schedule/" ++ Name, Req) ->
 get("/stats/", Req) ->
     %statistical data
     Req:ok({"text/plain", io_lib:format("~p", [all_ok])});
+
+get("/echo/" ++ Name, Req) ->
+    %statistical data
+    Req:ok({"text/plain", Name});
+
 
 get("/", Req) ->
     get("", Req);
@@ -123,3 +120,13 @@ create_new_schedule(QueryString) ->
     {StartTime, Url, Name} = get_basic_params(QueryString),
     Response = urlcron_scheduler:new(Name, StartTime, Url),
     urlcron_jsonutil:json_response(Response).
+
+todate(QueryString) ->
+    YY = erlang:list_to_integer(get_value("year", QueryString)),
+    MM = erlang:list_to_integer(get_value("month", QueryString)),
+    DD = erlang:list_to_integer(get_value("day", QueryString)),
+    Hh = erlang:list_to_integer(get_value("hour", QueryString)),
+    Mm = erlang:list_to_integer(get_value("minute", QueryString)),
+    Ss = erlang:list_to_integer(get_value("seconds", QueryString)),
+    {{YY, MM, DD}, {Hh, Mm, Ss}}.
+
