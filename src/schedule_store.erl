@@ -1,16 +1,18 @@
 -module(schedule_store).
 -export([
+        add/5,
+        get/1,
+        update/1,
+        update/2,
+        delete/1
+    ]).
+
+-export([
         start/0,
         start/1,
         stop/0,
         destroy/0,
         destroy/1
-    ]).
-
--export([
-        add/5,
-        get/1,
-        update/1
     ]).
 
 -include("urlcron.hrl").
@@ -43,8 +45,6 @@ add(Name, Pid, StartTime, Url, Status) ->
     Schedule = #schedule{name=Name, pid=Pid, start_time=StartTime, url=Url, status=Status},
     save(Schedule).
 
-
-
 get(Name) ->
     Fun = fun() ->
         case mnesia:read({schedule, Name}) of
@@ -56,12 +56,39 @@ get(Name) ->
     end,
     transaction(Fun).
 
+update(Schedule, []) ->
+    update(Schedule);
+
+update(Schedule, [{start_time, Value} | Rest]) when is_record(Schedule, schedule) ->
+    NewSchedule = Schedule#schedule{start_time = Value},
+    update(NewSchedule, Rest);
+
+update(Schedule, [{url, Value} | Rest]) when is_record(Schedule, schedule) ->
+    NewSchedule = Schedule#schedule{url = Value},
+    update(NewSchedule, Rest);
+
+update(Name, ValueList) ->
+    case schedule_store:get(Name) of
+        {error, not_found} ->
+            {error, not_found};
+        #schedule{status=completed} ->
+            {error, schedule_already_completed};
+        Schedule ->
+            update(Schedule, ValueList)
+    end.
+
 update(Schedule) ->
     save(Schedule).
 
-save(Schedule) ->
+save(Schedule) when is_record(Schedule, schedule) ->
     Fun= fun() ->
             mnesia:write(Schedule)
+    end,
+    transaction(Fun).
+
+delete(Name) when is_list(Name) ->
+    Fun = fun() ->
+            mnesia:delete({schedule, Name})
     end,
     transaction(Fun).
 

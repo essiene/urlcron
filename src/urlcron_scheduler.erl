@@ -4,10 +4,17 @@
         start/0,
         start/1,
         start_link/1,
-        stop/0,
-        new/2,
-        new/3,
-        get_status/1
+        stop/0
+    ]).
+
+-export([
+        create/2,
+        create/3,
+        get/1,
+        set/3,
+        enable/1,
+        disable/1,
+        cancel/1
     ]).
 
 -export([
@@ -21,7 +28,31 @@
 
 -include("urlcron.hrl").
 
-% Public API
+% Schedule management tasks
+
+create(Starttime, Url) ->
+    Name = urlcron_util:gen_schedule_name(),
+    create(Name, Starttime, Url).
+
+create(Name, Starttime, Url) ->
+    gen_server:call(?SCHEDULER, {create, Name, Starttime, Url}).
+
+get(Name) ->
+    gen_server:call(?SCHEDULER, {get, Name}).
+
+set(Name, Key, Value) ->
+    gen_server:call(?SCHEDULER, {set, Name, Key, Value}).
+
+enable(Name) ->
+    gen_server:call(?SCHEDULER, {enable, Name}).
+
+disable(Name) ->
+    gen_server:call(?SCHEDULER, {disable, Name}).
+
+cancel(Name) ->
+    gen_server:call(?SCHEDULER, {cancel, Name}).
+
+% Server management tasks
 
 start() ->
     start(erlcfg:new()).
@@ -34,16 +65,6 @@ start_link(Config) ->
 
 stop() ->
     gen_server:cast(?SCHEDULER, stop).
-
-new(Starttime, Url) ->
-    Name = urlcron_util:gen_schedule_name(),
-    new(Name, Starttime, Url).
-
-new(Name, Starttime, Url) ->
-    gen_server:call(?SCHEDULER, {new, Name, Starttime, Url}).
-
-get_status(Name) ->
-    gen_server:call(?SCHEDULER, {status, Name}).
 
 
 % Gen server callbacks
@@ -63,30 +84,82 @@ init([Config]) ->
     error_logger:info_msg("~p: Started~n", [?MODULE]),
     {ok, nil}.
 
-handle_call({new, Name, StartTime, Url}, _From, State) ->
+handle_call({create, Name, StartTime, Url}, _From, State) ->
     case urlcron_schedule:start(Name, StartTime) of
+        {error, Reason} ->
+            {reply, {error, Reason}, State};
         {ok, Pid} ->
             case schedule_store:add(Name, Pid, StartTime, Url, enabled) of
                 {error, Reason} ->
-                    Reply = {error, Reason};
+                    {reply, {error, Reason}, State};
                 ok ->
-                    Reply = {ok, {Name, StartTime, Url}}
-            end;
+                    {reply, {ok, Name}, State}
+            end
+    end;
+
+handle_call({get, Name}, _From, State) ->
+    Found = fun(Schedule) -> 
+            {reply, {ok, Schedule}, State}
+    end,
+
+    if_found_schedule({Name, State}, Found);
+
+handle_call({set, Name, url, Url}, _From, State) ->
+    case schedule_store:update(Name, [{url, Url}]) of
         {error, Reason} ->
-            Reply = {error, Reason}
+            {reply, {error, Reason}, State};
+        ok ->
+            {reply, ok, State}
+    end;
+
+handle_call({enable, Name}, _From, State) ->
+    Found = fun
+        (#schedule{status=completed}) ->
+            {reply, {error, schedule_already_completed}, State};
+        (#schedule{status=enabled}) ->
+            {reply, ok, State};
+        (#schedule{status=disabled}=Schedule) ->
+            StartTime = Schedule#schedule.start_time,
+            case urlcron_schedule:start(Name, StartTime) of
+                {error, Reason} ->
+                    {reply, {error, Reason}, State};
+                {ok, Pid} ->
+                    NewSchedule = Schedule#schedule{status=enabled, pid=Pid},
+                    schedule_store:update(NewSchedule),
+                    {reply, ok, State}
+            end
     end,
 
-    {reply, Reply, State};
+    if_found_schedule({Name, State}, Found);
 
-handle_call({status, Name}, _From, State) ->
-    case schedule_store:get(Name) of
-        {error, not_found} ->
-            Reply = {error, not_found};
-        #schedule{name=Name, start_time=StartTime, url=Url, status=Status} ->
-            Reply = {Name, StartTime, Url, Status}
+handle_call({disable, Name}, _From, State) ->
+    Found = fun
+        (#schedule{status=completed}) ->
+            {reply, {error, schedule_already_completed}, State};
+        (#schedule{status=enabled}=Schedule) ->
+            urlcron_schedule:stop(Schedule#schedule.pid),
+            NewSchedule = Schedule#schedule{status=disabled, pid=undefined},
+            schedule_store:update(NewSchedule),
+            {reply, ok, State};
+        (#schedule{status=disabled}) ->
+            {reply, ok, State}
     end,
-        
-    {reply, Reply, State};
+
+    if_found_schedule({Name, State}, Found);
+
+handle_call({cancel, Name}, _From, State) ->
+    Found = fun
+        (#schedule{status=enabled}=Schedule) ->
+            urlcron_schedule:stop(Schedule#schedule.pid),
+            schedule_store:delete(Name),
+            {reply, ok, State};
+        (_Schedule) ->
+            schedule_store:delete(Name),
+            {reply, ok, State}
+    end,
+
+    if_found_schedule({Name, State}, Found);
+            
 
 handle_call(Request, _From, State) ->
     {reply, {error, {illegal_request, Request}}, State}.
@@ -106,3 +179,12 @@ terminate(_Reason, _State) ->
 
 code_change(_OldVsn, State, _Extra) ->
     {noreply, State}.
+
+
+if_found_schedule({Name, State}, Fun) ->
+    case schedule_store:get(Name) of 
+        {error, not_found} ->
+            {reply, {error, not_found}, State};
+        Schedule ->
+            Fun(Schedule)
+    end.

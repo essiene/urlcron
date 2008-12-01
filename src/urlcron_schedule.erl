@@ -3,7 +3,6 @@
 
 -export([
         start/2,
-        start_link/2,
         stop/1,
         get_timer/1
     ]).
@@ -27,9 +26,6 @@
 % public api
 start(Name, StartTime) ->
     gen_fsm:start(?MODULE, [Name, StartTime], []).
-
-start_link(Name, StartTime) ->
-    gen_fsm:start_link(?MODULE, [Name, StartTime], []).
 
 %update these apis to use Name, instead of the schedule PID
 get_timer(Schedule) ->
@@ -73,10 +69,14 @@ running(Request, _From, State) ->
 
 % Generic gen_fsm callbacks
 init([Name, StartTime]) ->
-    MilliSecs = urlcron_util:get_datetime_diff(StartTime),
-    TimerRef = gen_fsm:send_event_after(MilliSecs, wakeup),
-    Data = schedule_data:new(Name, TimerRef),
-    {ok, running, Data}.
+    case urlcron_util:get_datetime_diff(StartTime) of
+        MilliSecs when MilliSecs > 999 ->
+            TimerRef = gen_fsm:send_event_after(MilliSecs, wakeup),
+            Data = schedule_data:new(Name, TimerRef),
+            {ok, running, Data};
+        _MilliSecs ->
+            {stop, schedule_will_never_run}
+    end.
 
 handle_sync_event(get_timer, _From, StateName, #schedule_data{timer=Timer}=State) ->
     {reply, Timer, StateName, State};
@@ -98,7 +98,8 @@ handle_info(_Info, StateName, State) ->
 
 
 
-terminate(_Reason, _StateName, _State) ->
+terminate(_Reason, _StateName, #schedule_data{timer=Timer}) ->
+    gen_fsm:cancel_timer(Timer),
     ok.
 
 
