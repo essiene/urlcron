@@ -49,6 +49,9 @@ get("/stats/", Req) ->
     %statistical data
     Req:ok({"text/plain", io_lib:format("~p", [all_ok])});
 
+get("/echo/" ++ Name , Req) ->
+    Req:ok({"text/plain", Name});
+
 get("/", Req) ->
     get("", Req);
 
