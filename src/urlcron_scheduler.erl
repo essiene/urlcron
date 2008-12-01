@@ -86,28 +86,24 @@ init([Config]) ->
 
 handle_call({create, Name, StartTime, Url}, _From, State) ->
     case urlcron_schedule:start(Name, StartTime) of
+        {error, Reason} ->
+            {reply, {error, Reason}, State};
         {ok, Pid} ->
             case schedule_store:add(Name, Pid, StartTime, Url, enabled) of
                 {error, Reason} ->
-                    Reply = {error, Reason};
+                    {reply, {error, Reason}, State};
                 ok ->
-                    Reply = {ok, {Name, StartTime, Url}}
-            end;
-        {error, Reason} ->
-            Reply = {error, Reason}
-    end,
-
-    {reply, Reply, State};
+                    {reply, {ok, Name}, State}
+            end
+    end;
 
 handle_call({get, Name}, _From, State) ->
     case schedule_store:get(Name) of
         {error, not_found} ->
-            Reply = {error, not_found};
-        #schedule{name=Name, start_time=StartTime, url=Url, status=Status} ->
-            Reply = {Name, StartTime, Url, Status}
-    end,
-        
-    {reply, Reply, State};
+            {reply, {error, not_found}, State};
+        Schedule ->
+            {reply, {ok, Schedule}, State}
+    end;
 
 handle_call(Request, _From, State) ->
     {reply, {error, {illegal_request, Request}}, State}.

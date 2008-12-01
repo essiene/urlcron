@@ -1,16 +1,16 @@
 -module(schedule_store).
 -export([
+        add/5,
+        get/1,
+        update/1
+    ]).
+
+-export([
         start/0,
         start/1,
         stop/0,
         destroy/0,
         destroy/1
-    ]).
-
--export([
-        add/5,
-        get/1,
-        update/1
     ]).
 
 -include("urlcron.hrl").
