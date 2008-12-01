@@ -8,7 +8,7 @@ init_test() ->
 add_test() ->
     schedule_store:add("schedule1", self(), start_time, url, enabled),
     Result = schedule_store:get("schedule1"),
-    Expected = #schedule{name="schedule1", process=self(), start_time=start_time, url=url, status=enabled},
+    Expected = #schedule{name="schedule1", pid=self(), start_time=start_time, url=url, status=enabled},
     ?assertEqual(Expected, Result).
 
 get_non_existing_test() ->
@@ -18,13 +18,13 @@ get_non_existing_test() ->
 
 update_test() ->
     Schedule = schedule_store:get("schedule1"),
-    Process = Schedule#schedule.process,
+    Pid = Schedule#schedule.pid,
     TimeCreated = Schedule#schedule.time_created,
-    UpdatedSchedule = Schedule#schedule{url="NewUrl", status=disabled, fetch_status=ok},
+    UpdatedSchedule = Schedule#schedule{url="NewUrl", status=disabled, url_status=200},
     schedule_store:update(UpdatedSchedule),
 
     NewSchedule = schedule_store:get("schedule1"),
-    Expected = #schedule{name="schedule1", process=Process, time_created=TimeCreated, status=disabled, fetch_status=ok, start_time=start_time, url="NewUrl"},
+    Expected = #schedule{name="schedule1", pid=Pid, time_created=TimeCreated, status=disabled, url_status=200, start_time=start_time, url="NewUrl"},
     ?assertEqual(Expected, NewSchedule).
 
 destroy_test() ->

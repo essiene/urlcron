@@ -9,15 +9,14 @@
 
 -record(schedule, {
         name, % unique
-        process = undefined,
+        pid = undefined,
         start_time = undefined,
         time_created = urlcron_util:get_future_time(0),
         time_started = undefined,
         time_completed = undefined,
         url = undefined,
-        fetch_status = undefined,
-        http_status = undefined,
-        http_headers = undefined,
-        http_content = undefined,
-        status = disabled % enabled | disabled | active | completed
+        url_status = undefined,
+        url_headers = undefined,
+        url_content = undefined,
+        status = disabled % enabled | disabled | completed
         }).

@@ -43,7 +43,13 @@ upgrade() ->
 %% @doc supervisor callback.
 init([]) ->
 
-    Config = erlcfg:new("/etc/urlcron.conf"),
+    Config = case erlcfg:new("/etc/urlcron.conf") of
+        {error, Reason} ->
+            throw(Reason);
+        Result ->
+            Result
+    end,
+
 
     Web = {urlcron_mochiweb, 
         {urlcron_mochiweb, start, [Config]}, 

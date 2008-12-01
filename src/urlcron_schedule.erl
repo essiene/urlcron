@@ -31,17 +31,38 @@ start(Name, StartTime) ->
 start_link(Name, StartTime) ->
     gen_fsm:start_link(?MODULE, [Name, StartTime], []).
 
+%update these apis to use Name, instead of the schedule PID
 get_timer(Schedule) ->
     gen_fsm:sync_send_all_state_event(Schedule, get_timer).
 
 stop(Schedule) ->
     gen_fsm:send_all_state_event(Schedule, stop).
 
+fetch_url(Name) ->
+    case schedule_store:get(Name) of
+        {error, Reason} ->
+            throw({getting_schedule, Name, Reason});
+        Schedule = #schedule{status=enabled, url=Url} ->
+            {TimeStarted, TimeCompleted, {Code, Headers, Content}} = urlcron_util:urlopen(Url),
+            UpdatedSchedule = Schedule#schedule{
+                status=completed, 
+                pid = undefined,
+                time_started=TimeStarted, 
+                time_completed=TimeCompleted,
+                url_status = Code,
+                url_headers = Headers,
+                url_content = Content
+            },
+            schedule_store:update(UpdatedSchedule);
+        #schedule{status=Status} ->
+            throw({invalid_schedule_status, Status})
+    end.
+
+
 % gen_fsm states callbacks
 
-running(wakeup, #schedule_data{name=_Name}=State) ->
-%    error_logger:info_msg("Waking up to call: ~s", [Url]),
-%    {_Status, _Detail} = http:request(Url),
+running(wakeup, #schedule_data{name=Name}=State) ->
+    fetch_url(Name),
     {stop, normal, State};
 
 running(_Request, State) ->
@@ -70,9 +91,6 @@ handle_event(stop, _StateName, State) ->
 
 handle_event(_Request, StateName, State) ->
     {nextstate, StateName, State}.
-
-
-
 
 handle_info(_Info, StateName, State) ->
     {nextstate, StateName, State}.

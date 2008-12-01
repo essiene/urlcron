@@ -17,11 +17,13 @@ start_disabled_test() ->
 schedule_runs_and_exists_test() ->
     inets:start(),
     urlcron_mochiweb:start(),
+    schedule_store:start(erlcfg:new("urlcron.conf")),
     StartTime = urlcron_util:get_future_time(1000),
     {ok, Pid} = urlcron_schedule:start_link("schedule03", StartTime),
     ?assert(is_process_alive(Pid) == true),
     timer:sleep(2000),
     ?assert(is_process_alive(Pid) == false),
+    schedule_store:destroy(erlcfg:new("urlcron.conf")),
     urlcron_mochiweb:stop(),
     inets:stop().
 

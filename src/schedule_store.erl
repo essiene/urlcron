@@ -39,8 +39,8 @@ destroy(Config) ->
     delete_mnesia_schema(Config).
 
 
-add(Name, Process, StartTime, Url, Status) ->
-    Schedule = #schedule{name=Name, process=Process, start_time=StartTime, url=Url, status=Status},
+add(Name, Pid, StartTime, Url, Status) ->
+    Schedule = #schedule{name=Name, pid=Pid, start_time=StartTime, url=Url, status=Status},
     save(Schedule).
 
 
