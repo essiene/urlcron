@@ -98,6 +98,36 @@ enabled_completed_test() ->
 
     ?assertEqual({error, schedule_already_completed}, urlcron_scheduler:enable(Name)).
 
+cancel_enabled_test() ->
+    StartTime = urlcron_util:get_future_time(60000),
+    {ok, Name} = urlcron_scheduler:create(StartTime, "http://localhost:8118/echo/fetch_url_test"),
+
+    {ok, Schedule} = urlcron_scheduler:get(Name),
+
+    ?assertEqual(ok, urlcron_scheduler:cancel(Name)),
+    ?assertEqual(false, is_process_alive(Schedule#schedule.pid)),
+    ?assertEqual({error, not_found}, urlcron_scheduler:get(Name)).
+
+cancel_disabled_test() ->
+    StartTime = urlcron_util:get_future_time(60000),
+    {ok, Name} = urlcron_scheduler:create(StartTime, "http://localhost:8118/echo/fetch_url_test"),
+
+    ok = urlcron_scheduler:disable(Name),
+
+    ?assertEqual(ok, urlcron_scheduler:cancel(Name)),
+    ?assertEqual({error, not_found}, urlcron_scheduler:get(Name)).
+
+cancel_completed_test() ->
+    StartTime = urlcron_util:get_future_time(1000),
+    {ok, Name} = urlcron_scheduler:create(StartTime, "http://localhost:8118/echo/fetch_url_test"),
+
+    timer:sleep(2000),
+
+    ?assertEqual(ok, urlcron_scheduler:cancel(Name)),
+    ?assertEqual({error, not_found}, urlcron_scheduler:get(Name)).
+
+
+
 
 destroy_test() ->
     Config = erlcfg:new("urlcron.conf"),

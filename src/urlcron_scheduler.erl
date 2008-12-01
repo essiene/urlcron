@@ -146,6 +146,19 @@ handle_call({disable, Name}, _From, State) ->
     end,
 
     if_found_schedule({Name, State}, Found);
+
+handle_call({cancel, Name}, _From, State) ->
+    Found = fun
+        (#schedule{status=enabled}=Schedule) ->
+            urlcron_schedule:stop(Schedule#schedule.pid),
+            schedule_store:delete(Name),
+            {reply, ok, State};
+        (_Schedule) ->
+            schedule_store:delete(Name),
+            {reply, ok, State}
+    end,
+
+    if_found_schedule({Name, State}, Found);
             
 
 handle_call(Request, _From, State) ->

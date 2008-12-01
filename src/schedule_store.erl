@@ -3,7 +3,8 @@
         add/5,
         get/1,
         update/1,
-        update/2
+        update/2,
+        delete/1
     ]).
 
 -export([
@@ -44,8 +45,6 @@ add(Name, Pid, StartTime, Url, Status) ->
     Schedule = #schedule{name=Name, pid=Pid, start_time=StartTime, url=Url, status=Status},
     save(Schedule).
 
-
-
 get(Name) ->
     Fun = fun() ->
         case mnesia:read({schedule, Name}) of
@@ -56,8 +55,6 @@ get(Name) ->
         end
     end,
     transaction(Fun).
-
-
 
 update(Schedule, []) ->
     update(Schedule);
@@ -86,6 +83,12 @@ update(Schedule) ->
 save(Schedule) when is_record(Schedule, schedule) ->
     Fun= fun() ->
             mnesia:write(Schedule)
+    end,
+    transaction(Fun).
+
+delete(Name) when is_list(Name) ->
+    Fun = fun() ->
+            mnesia:delete({schedule, Name})
     end,
     transaction(Fun).
 

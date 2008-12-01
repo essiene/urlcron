@@ -2,7 +2,7 @@
 -include_lib("eunit/include/eunit.hrl").
 -include("urlcron.hrl").
 
-init_test() ->
+setup_test() ->
     ?assertEqual(ok, schedule_store:start(erlcfg:new("urlcron.conf"))).
 
 add_test() ->
@@ -46,6 +46,10 @@ update_fields_on_completed_test() ->
 
     NewStartTime = urlcron_util:get_future_time(20000),
     ?assertEqual({error, schedule_already_completed}, schedule_store:update("schedule1", [{url, "google.com"}, {start_time, NewStartTime}])).
+
+delete_test() ->
+    ?assertEqual(ok, schedule_store:delete("schedule1")),
+    ?assertEqual({error, not_found}, schedule_store:get("schedule1")).
     
-destroy_test() ->
+teardown_test() ->
     schedule_store:destroy(erlcfg:new("urlcron.conf")).
