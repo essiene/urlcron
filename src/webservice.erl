@@ -15,10 +15,20 @@
         update_schedule/2
     ]).
 
+-include("urlcron.hrl").
+
+
+todate(QueryString) ->
+    YY = erlang:list_to_integer(get_value("year", QueryString)),
+    MM = erlang:list_to_integer(get_value("month", QueryString)),
+    DD = erlang:list_to_integer(get_value("day", QueryString)),
+    Hh = erlang:list_to_integer(get_value("hour", QueryString)),
+    Mm = erlang:list_to_integer(get_value("minute", QueryString)),
+    Ss = erlang:list_to_integer(get_value("seconds", QueryString)),
+    {{YY, MM, DD}, {Hh, Mm, Ss}}.
 
 post("/schedule", Req) ->
     QueryString = Req:parse_post(),
-    io:format("QueryString: ~p~n", [QueryString]),
     Response = create_new_schedule(QueryString),
     Req:ok({"text/javascript", mochijson2:encode(Response)}).
 
@@ -48,11 +58,6 @@ get("/stats/", Req) ->
     %statistical data
     Req:ok({"text/plain", io_lib:format("~p", [all_ok])});
 
-get("/echo/" ++ Name, Req) ->
-    %statistical data
-    Req:ok({"text/plain", Name});
-
-
 get("/", Req) ->
     get("", Req);
 
@@ -66,7 +71,12 @@ get_basic_params(QueryString) ->
     StartTime = todate(QueryString),    
     Url = get_value("url", QueryString),
     Name = get_value("name", QueryString),
-    {StartTime, Url, Name}.
+    case Name of 
+        [] ->
+            {Url, Name};
+        Value ->
+            {StartTime, Url, Value}
+    end.            
 
 get_value(Key, TupleList) ->
     case lists:keysearch(Key, 1, TupleList) of
@@ -79,62 +89,53 @@ get_value(Key, TupleList) ->
 
 view_schedule() ->
     %Response = urlcron_scheduler:view_all()
-    StartTime = {{2008, 12, 11}, {16, 12, 12}},
-    Url = "http://localhost:8118",
     Name = "xmas",
     Response = [
-                    {ok, {Name, StartTime, Url}},
-                    {ok, {Name, StartTime, Url}},
-                    {ok, {Name, StartTime, Url}},
-                    {ok, {Name, StartTime, Url}}
+                    {ok, Name},
+                    {ok, Name},
+                    {ok, Name},
+                    {ok, Name}
                ],
-    urlcron_jsonutil:json_response(Response).
+    urlcron_jsonutil:to_json(Response).
 
 view_schedule(Name) ->
     %Response = urlcron_scheduler:view_all()
     StartTime = {{2008, 12, 11}, {16, 12, 12}},
     Url = "http://localhost:8118",
-    Response = {ok, {Name, StartTime, Url}},
-    urlcron_jsonutil:json_response(Response).
+    Schedule = #schedule{
+                    name = Name,
+                    status = 1,
+                    start_time = StartTime,
+                    url = Url
+                },
+    Response = {ok, Schedule},
+    urlcron_jsonutil:to_json(Response).
 
 
 delete_schedule() ->
     %Response = urlcron_scheduler:delete_all(),
     Response = {ok, "All Schedules Deleted"},
-    urlcron_jsonutil:json_response(Response).
+    urlcron_jsonutil:to_json(Response).
 
 delete_schedule(Name) ->
     %Response = urlcron_scheduler:delete(Name),
-    Response = {ok, {Name, "Deleted"}},
-    urlcron_jsonutil:json_response(Response).
+    Response = {ok, Name},
+    urlcron_jsonutil:to_json(Response).
 
 
 update_schedule(Name, QueryString) ->
-    {StartTime, Url, _Name} = get_basic_params(QueryString),
+    {_StartTime, _Url, _Name} = get_basic_params(QueryString),
     %Response = urlcron_scheduler:update(Name, StartTime, Url),
-    Response = {ok, {Name, StartTime, Url}},
-    urlcron_jsonutil:json_response(Response).
+    Response = {ok, Name},
+    urlcron_jsonutil:to_json(Response).
 
 
 create_new_schedule(QueryString) ->
-    {StartTime, Url, Name} = get_basic_params(QueryString),
-
-    case Name of
-        [] ->
-            Response = urlcron_scheduler:new(StartTime, Url);
-        Data ->
-            Response = urlcron_scheduler:new(Name, StartTime, Url)
+    case get_basic_params(QueryString) of
+        {StartTime, Url, Name} ->
+            _Response = urlcron_scheduler:new(Name, StartTime, Url);
+        {Url, Name} ->
+            _Response = urlcron_scheduler:new(Url, Name)
     end,
-
-    Response = urlcron_scheduler:new(Name, StartTime, Url),
-    urlcron_jsonutil:json_response(Response).
-
-todate(QueryString) ->
-    YY = erlang:list_to_integer(get_value("year", QueryString)),
-    MM = erlang:list_to_integer(get_value("month", QueryString)),
-    DD = erlang:list_to_integer(get_value("day", QueryString)),
-    Hh = erlang:list_to_integer(get_value("hour", QueryString)),
-    Mm = erlang:list_to_integer(get_value("minute", QueryString)),
-    Ss = erlang:list_to_integer(get_value("seconds", QueryString)),
-    {{YY, MM, DD}, {Hh, Mm, Ss}}.
-
+    RResponse = {ok, Name},
+    urlcron_jsonutil:to_json(RResponse).

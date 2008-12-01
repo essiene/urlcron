@@ -19,14 +19,11 @@ create_new_schedule_test() ->
     ],
 
     Result = webservice:create_new_schedule(QueryString),
-    StrDateTime = io_lib:format("~p/~p/~p ~p:~p:~p", [Year, Month, Day, Hour, Min, Sec]),
 
     Expected = {struct, 
         [
             {<<"status">>, 1},
-            {<<"name">>, <<"schedule1">>},
-            {<<"starttime">>, list_to_binary(StrDateTime)},
-            {<<"url">>, <<"url1">>}
+            {<<"name">>, <<"schedule1">>}
         ]
     },
     ?assertEqual(Expected, Result).
