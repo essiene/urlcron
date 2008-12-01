@@ -19,7 +19,7 @@ to_json({ok, Name}) when is_list(Name) ->
     {struct,
         [
             {<<"status">>, 1},
-            {<<"name">>, list_to_binary(Name)}
+            {<<"name">>, to_json(Name)}
         ]
     };
 
@@ -37,7 +37,7 @@ to_json({error, Reason}) when is_list(Reason) ->
     {struct, 
         [
             {<<"status">>, 0},
-            {<<"data">>, list_to_binary(Reason)}
+            {<<"data">>, to_json(Reason)}
         ]
     };
 
@@ -53,26 +53,23 @@ to_json(Schedule) when is_record(Schedule, schedule) ->
     UrlStatus = Schedule#schedule.url_status,
     UrlHeaders = Schedule#schedule.url_headers,
     UrlContent = Schedule#schedule.url_content,
-    status = Schedule#schedule.status,
+    Status = Schedule#schedule.status,
 
     {struct, 
         [
-            {<<"Name">>, list_to_binary(Name)},
+            {<<"name">>, to_json(Name)},
             {<<"pid">>, to_json(Pid)},
             {<<"start_time">>, to_json(StartTime)},
             {<<"time_created">>, to_json(TimeCreated)},
             {<<"time_started">>, to_json(TimeStarted)},
             {<<"time_completed">>, to_json(TimeCompleted)},
-            {<<"url">>, list_to_binary(Url)},
-            {<<"url_status">>, list_to_binary(UrlStatus)},
-            {<<"url_headers">>, list_to_binary(UrlHeaders)},
-            {<<"url_content">>, list_to_binary(UrlContent)}
+            {<<"url">>, to_json(Url)},
+            {<<"url_status">>, to_json(UrlStatus)},
+            {<<"url_headers">>, to_json(UrlHeaders)},
+            {<<"url_content">>, to_json(UrlContent)},
+            {<<"status">>, to_json(Status)}
         ]
     };
-
-
-to_json(Value) when is_list(Value) ->
-    list_to_binary(Value);
 
 
 to_json(Pid) when is_pid(Pid) ->
@@ -80,18 +77,24 @@ to_json(Pid) when is_pid(Pid) ->
     list_to_binary(List);
 
 
-to_json({{Year, Month, Day}, {Hour, Minute, Seconds}}=StartTime) ->
+to_json({{Year, Month, Day}, {Hour, Minute, Seconds}}) ->
     {struct,
         [
-            {<<"Year">>, Year},
-            {<<"Month">>, Month},
-            {<<"Day">>, Day},
-            {<<"Hour">>, Hour},
-            {<<"Minute">>, Minute},
-            {<<"Seconds">>, Seconds}
+            {<<"year">>, Year},
+            {<<"month">>, Month},
+            {<<"day">>, Day},
+            {<<"hour">>, Hour},
+            {<<"minute">>, Minute},
+            {<<"seconds">>, Seconds}
         ]                   
     };
     
+to_json(Value) when is_list(Value) ->
+    list_to_binary(Value);
+
+to_json(Value) when is_atom(Value) ->
+    List = atom_to_list(Value),
+    list_to_binary(List);
 
 to_json([Schedule | _Rest]=List) when is_record(Schedule, schedule)->
     Fun = fun(A) -> 

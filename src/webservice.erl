@@ -104,17 +104,18 @@ view_schedule(Name) ->
     Url = "http://localhost:8118",
     Schedule = #schedule{
                     name = Name,
-                    status = 1,
                     start_time = StartTime,
-                    url = Url
+                    status = enabled,
+                    url = Url                        
                 },
-    Response = {ok, Schedule},
+    Response = {ok, Schedule},   
+    error_logger:info_msg("Response : ~p~n", [Response]),
     urlcron_jsonutil:to_json(Response).
 
 
 delete_schedule() ->
     %Response = urlcron_scheduler:delete_all(),
-    Response = {ok, "All Schedules Deleted"},
+    Response = ok,
     urlcron_jsonutil:to_json(Response).
 
 delete_schedule(Name) ->
@@ -124,7 +125,7 @@ delete_schedule(Name) ->
 
 
 update_schedule(Name, QueryString) ->
-    {_StartTime, _Url, _Name} = get_basic_params(QueryString),
+    {_StartTime, _Url} = get_basic_params(QueryString),
     %Response = urlcron_scheduler:update(Name, StartTime, Url),
     Response = {ok, Name},
     urlcron_jsonutil:to_json(Response).

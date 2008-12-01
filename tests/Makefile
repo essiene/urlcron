@@ -12,7 +12,8 @@ OBJECTS= test_util \
 		 test_schedule_store \
 		 test_schedule \
 		 test_scheduler \
-		 test_webservice
+		 test_webservice \
+		 test_jsonutil
 
 
 test: compile
