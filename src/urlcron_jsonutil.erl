@@ -19,7 +19,15 @@ to_json({ok, Name}) when is_list(Name) ->
     {struct,
         [
             {<<"status">>, 1},
-            {<<"name">>, to_json(Name)}
+            {<<"data">>, to_json(Name)}
+        ]
+    };
+
+to_json({ok, Pid}) when is_pid(Pid) ->
+    {struct,
+        [
+            {<<"status">>, 1},
+            {<<"pid">>, to_json(Pid)}
         ]
     };
 
