@@ -118,7 +118,7 @@ update_schedule(Name, QueryString) ->
 
 create_new_schedule(QueryString) ->
     {StartTime, Url, Name} = get_basic_params(QueryString),
-    Response = urlcron_scheduler:new(Name, StartTime, Url),
+    Response = urlcron_scheduler:create(Name, StartTime, Url),
     urlcron_jsonutil:json_response(Response).
 
 todate(QueryString) ->

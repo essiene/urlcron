@@ -31,7 +31,7 @@ fetch_url_test() ->
     urlcron_scheduler:start(Config),
 
     StartTime = urlcron_util:get_future_time(1000),
-    urlcron_scheduler:new("schedule4", StartTime, "http://localhost:8118/echo/fetch_url_test"),
+    urlcron_scheduler:create("schedule4", StartTime, "http://localhost:8118/echo/fetch_url_test"),
 
     timer:sleep(2000),
 
