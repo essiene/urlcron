@@ -50,6 +50,27 @@ update_fields_on_completed_test() ->
 delete_test() ->
     ?assertEqual(ok, schedule_store:delete("schedule1")),
     ?assertEqual({error, not_found}, schedule_store:get("schedule1")).
-    
+
+get_enabled_test() ->
+    ?assertEqual([], schedule_store:get_enabled()),
+
+    schedule_store:add("schedule1", self(), start_time, url, enabled),
+    schedule_store:add("schedule2", self(), start_time, url, enabled),
+    schedule_store:add("schedule3", self(), start_time, url, disabled),
+    schedule_store:add("schedule4", self(), start_time, url, enabled),
+    schedule_store:add("schedule5", self(), start_time, url, completed),
+    schedule_store:add("schedule6", self(), start_time, url, enabled),
+
+    List = schedule_store:get_enabled(),
+    ?assertEqual(4, length(List)),
+
+    schedule_store:stop(),
+    schedule_store:start(erlcfg:new("urlcron.conf")),
+
+    List = schedule_store:get_enabled(),
+    ?assertEqual(4, length(List)).
+
 teardown_test() ->
     schedule_store:destroy(erlcfg:new("urlcron.conf")).
+
+

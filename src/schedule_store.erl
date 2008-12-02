@@ -28,7 +28,16 @@ start(Config) ->
     create_mnesia_schema(Config),
 
     mnesia:start(),
-    create_mnesia_tables(Config).
+    create_mnesia_tables(Config),
+
+    case mnesia:wait_for_tables([schedule], Config:get(cluster.db.wait, 15000)) of
+        ok ->
+            ok;
+        {timeout, BadTabList} ->
+            throw({timeout_waiting_for_tables, BadTabList});
+        {error, Reason} ->
+            throw(Reason)
+    end.
 
 stop() ->
     mnesia:stop().
