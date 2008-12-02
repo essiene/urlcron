@@ -15,40 +15,23 @@ to_json(ok) ->
     };
 
 
-to_json({ok, Name}) when is_list(Name) ->
+to_json({ok, Data}) ->
     {struct,
         [
             {<<"status">>, 1},
-            {<<"data">>, to_json(Name)}
+            {<<"data">>, to_json(Data)}
         ]
     };
 
 
-to_json({ok, Schedule}) when is_record(Schedule, schedule) ->
-    {struct, 
-        [
-            {<<"status">>, 1},
-            {<<"data">>, to_json(Schedule)}
-        ]
-    };
-
-
-to_json({error, Reason}) when is_list(Reason) ->
+to_json({error, Data}) ->
     {struct, 
         [
             {<<"status">>, 0},
-            {<<"data">>, to_json(Reason)}
+            {<<"data">>, to_json(Data)}
         ]
     };
 
-
-to_json({error, Reason}) when is_atom(Reason) ->
-    {struct, 
-        [
-            {<<"status">>, 0},
-            {<<"data">>, to_json(Reason)}
-        ]
-    };
 
 to_json(Schedule) when is_record(Schedule, schedule) ->
     Name = Schedule#schedule.name,

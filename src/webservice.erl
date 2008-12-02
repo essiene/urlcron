@@ -77,7 +77,7 @@ get(_Path, Req) ->
 
 
 enable_schedule(Name) ->
-    RetVal = urlcron_scheduler:enable(Name).
+    urlcron_scheduler:enable(Name).
 
 
 disable_schedule(Name) ->
@@ -132,4 +132,3 @@ get_value(Key, TupleList) ->
         false ->
             []
     end.            
-
