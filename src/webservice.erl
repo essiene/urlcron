@@ -8,11 +8,11 @@
 
 -export([
         create_new_schedule/1,
-        view_schedule/0,
         view_schedule/1,
-        delete_schedule/0,
         delete_schedule/1,
-        update_schedule/2
+        update_schedule/2,
+        enable_schedule/1,
+        disable_schedule/1
     ]).
 
 -include("urlcron.hrl").
@@ -24,87 +24,72 @@ post("/schedule", Req) ->
     Json = urlcron_jsonutil:to_json(Response),
     Req:ok({"text/javascript", mochijson2:encode(Json)}).
 
+
 put("/schedule/" ++ Name, Req) ->    
     QueryString = Req:parse_post(),
     Response = update_schedule(Name, QueryString),
     Json = urlcron_jsonutil:to_json(Response),
     Req:ok({"text/javascript", mochijson2:encode(Json)}).
 
-delete("/schedule/", Req) ->
-    Response = delete_schedule(),
-    Req:ok({"text/javascript", mochijson2:encode(Response)});
-
 delete("/schedule/" ++ Name, Req) ->
     Response = delete_schedule(Name),
-    Req:ok({"text/javascript", mochijson2:encode(Response)}).
+    Json = urlcron_jsonutil:to_json(Response),
+    Req:ok({"text/javascript", mochijson2:encode(Json)}).
 
-get("/schedule/", Req) ->
-    Response = view_schedule(),
-    Req:ok({"text/javascript", mochijson2:encode(Response)});
 
 get("/schedule/enable/" ++ Name, Req) ->
     Response = enable_schedule(Name),
-    Req:ok({"text/javascript", mochijson2:encode(Response)});
+    Json = urlcron_jsonutil:to_json(Response),
+    Req:ok({"text/javascript", mochijson2:encode(Json)});
+
 
 get("/schedule/disable/" ++ Name, Req) ->
     Response = disable_schedule(Name),
-    Req:ok({"text/javascript", mochijson2:encode(Response)});
+    Json = urlcron_jsonutil:to_json(Response),
+    Req:ok({"text/javascript", mochijson2:encode(Json)});
+
 
 get("/schedule/" ++ Name, Req) ->
     Response = view_schedule(Name),
-    Req:ok({"text/javascript", mochijson2:encode(Response)});
+    Json = urlcron_jsonutil:to_json(Response),
+    Req:ok({"text/javascript", mochijson2:encode(Json)});
 
 
 get("/stats/", Req) ->
     %statistical data
     Req:ok({"text/plain", io_lib:format("~p", [all_ok])});
 
+
 get("/echo/" ++ Name , Req) ->
     Req:ok({"text/plain", Name});
+
 
 get("/", Req) ->
     get("", Req);
 
+
 get("", Req) ->
     Req:ok({"text/plain", io_lib:format("Welcome to ~p", [urlcron])});
+
 
 get(_Path, Req) ->
     Req:not_found().
 
+
 enable_schedule(Name) ->
-    Response = urlcron_scheduler:enable(Name),
-    urlcron_jsonutil:to_json(Response).
+    RetVal = urlcron_scheduler:enable(Name).
 
 
 disable_schedule(Name) ->
-    Response = urlcron_scheduler:disable(Name),
-    urlcron_jsonutil:to_json(Response).
+    urlcron_scheduler:disable(Name).
 
-
-view_schedule() ->
-    %Response = urlcron_scheduler:get_all()
-    Name = "xmas",
-    Response = [
-                    {ok, Name},
-                    {ok, Name},
-                    {ok, Name},
-                    {ok, Name}
-               ],
-    urlcron_jsonutil:to_json(Response).
 
 view_schedule(Name) ->
-    Response = urlcron_scheduler:get(Name),
-    urlcron_jsonutil:to_json(Response).
+    urlcron_scheduler:get(Name).
 
-
-delete_schedule() ->
-    %Response = urlcron_scheduler:cancel_all(),
-    Response = ok,
-    urlcron_jsonutil:to_json(Response).
 
 delete_schedule(Name) ->
-    Response = urlcron_scheduler:cancel(Name),
-    urlcron_jsonutil:to_json(Response).
+    urlcron_scheduler:cancel(Name).
 
 
 update_schedule(Name, QueryString) ->

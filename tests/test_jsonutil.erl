@@ -21,7 +21,7 @@ ok_name_test() ->
     Expected = {struct,
         [
             {<<"status">>, 1},
-            {<<"name">>, <<"Mine">>}
+            {<<"data">>, <<"Mine">>}
         ]
     },
     ?assertEqual(Expected, Result).

@@ -23,14 +23,6 @@ to_json({ok, Name}) when is_list(Name) ->
         ]
     };
 
-to_json({ok, Pid}) when is_pid(Pid) ->
-    {struct,
-        [
-            {<<"status">>, 1},
-            {<<"pid">>, to_json(Pid)}
-        ]
-    };
-
 
 to_json({ok, Schedule}) when is_record(Schedule, schedule) ->
     {struct, 
@@ -49,6 +41,14 @@ to_json({error, Reason}) when is_list(Reason) ->
         ]
     };
 
+
+to_json({error, Reason}) when is_atom(Reason) ->
+    {struct, 
+        [
+            {<<"status">>, 0},
+            {<<"data">>, to_json(Reason)}
+        ]
+    };
 
 to_json(Schedule) when is_record(Schedule, schedule) ->
     Name = Schedule#schedule.name,
