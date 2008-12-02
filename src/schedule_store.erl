@@ -2,6 +2,7 @@
 -export([
         add/5,
         get/1,
+        get_enabled/0,
         update/1,
         update/2,
         delete/1
@@ -15,6 +16,7 @@
         destroy/1
     ]).
 
+-include_lib("stdlib/include/qlc.hrl").
 -include("urlcron.hrl").
 
 
@@ -47,12 +49,19 @@ add(Name, Pid, StartTime, Url, Status) ->
 
 get(Name) ->
     Fun = fun() ->
-        case mnesia:read({schedule, Name}) of
+        case mnesia:wread({schedule, Name}) of
             [Schedule] -> 
                 Schedule;
             [] ->
                 {error, not_found}
         end
+    end,
+    transaction(Fun).
+
+get_enabled() ->
+    Fun = fun() ->
+            Q = qlc:q([E || E <- mnesia:table(schedule), E#schedule.status== enabled]),
+            qlc:e(Q)
     end,
     transaction(Fun).
 
@@ -68,7 +77,7 @@ update(Schedule, [{url, Value} | Rest]) when is_record(Schedule, schedule) ->
     update(NewSchedule, Rest);
 
 update(Name, ValueList) ->
-    case schedule_store:get(Name) of
+    case ?MODULE:get(Name) of
         {error, not_found} ->
             {error, not_found};
         #schedule{status=completed} ->
