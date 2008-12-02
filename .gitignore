@@ -9,3 +9,6 @@ ebin
 *.bz2
 *.swp
 *.swo
+dist
+build
+*.pyc
