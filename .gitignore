@@ -9,3 +9,4 @@ ebin
 *.bz2
 *.swp
 *.swo
+*.pyc
