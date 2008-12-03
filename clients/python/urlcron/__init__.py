@@ -1,7 +1,7 @@
-import pycron
+import urlcron 
 
-__all__ = ['Pycron', 'Schedule']
+__all__ = ['UrlCron', 'Schedule']
 
 
-Pycron = pycron.Pycron
-Schedule = pycron.Schedule
+UrlCron = urlcron.UrlCron
+Schedule = urlcron.Schedule
