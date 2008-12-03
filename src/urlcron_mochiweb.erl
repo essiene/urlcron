@@ -1,5 +1,11 @@
 -module(urlcron_mochiweb).
--export([start/0, start/1, stop/0, loop/1]).
+-export([
+        start/0, 
+        start/1, 
+        stop/0, 
+        ping/0,
+        loop/1
+    ]).
 
 %% External API
 
@@ -19,6 +25,15 @@ start(Config) ->
 
 stop() ->
     mochiweb_http:stop(?MODULE).
+
+ping() ->
+    case whereis(urlcron_mochiweb) of
+        undefined ->
+            pang;
+        Pid when is_pid(Pid) ->
+            pong
+    end.
+
 
 loop(Req) ->
     Method = Req:get(method),

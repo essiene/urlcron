@@ -4,7 +4,8 @@
         start/0,
         start/1,
         start_link/1,
-        stop/0
+        stop/0,
+        ping/0
     ]).
 
 -export([
@@ -65,6 +66,14 @@ start_link(Config) ->
 stop() ->
     gen_server:cast(?SCHEDULER, stop).
 
+ping() ->
+    case gen_server:call(?SCHEDULER, ping) of
+        {error, _Reason} ->
+            pang;
+        pong ->
+            pong
+    end.
+
 
 % Gen server callbacks
 
@@ -104,6 +113,8 @@ handle_call({disable, Name}, _From, State) ->
     Reply = schedule_util:disable(Name),
     {reply, Reply, State};
 
+handle_call(ping, _From, State) ->
+    {reply, pong, State};
 
 handle_call(Request, _From, State) ->
     {reply, {error, {illegal_request, Request}}, State}.

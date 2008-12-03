@@ -16,7 +16,10 @@ start() ->
     application:start(urlcron).
 
 status() ->
-    [{webservice, "Alive"}, {scheduler, "Alive"}].
+    [
+        {webservice, urlcron_mochiweb:ping()}, 
+        {scheduler, urlcron_scheduler:ping()}
+    ].
 
 %% @spec stop() -> ok
 %% @doc Stop the urlcron server.

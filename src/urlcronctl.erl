@@ -6,19 +6,28 @@
 
 
 action([exit]) ->
-    urlcron_exec(init, stop, []),
-    display({urlcron, "Exited"});
+    display(
+        urlcron_exec(init, stop, [], exited)
+    );
 
 action([stop]) ->
-    urlcron_exec(urlcron, stop, []),
-    display({urlcron, "Stopped"});
+    display(
+        urlcron_exec(urlcron, stop, [], stopped)
+    );
 
 action([start]) ->
-    urlcron_exec(urlcron, start, []),
-    display({urlcron, "Started"});
+    display(
+        urlcron_exec(urlcron, start, [], started)
+    );
+
+action([restart]) ->
+    action([stop]),
+    action([start]);
 
 action([status]) ->
-    display(urlcron_exec(urlcron, status, []));
+    display(
+        urlcron_exec(urlcron, status, [])
+    );
 
 action(Any) ->
     available_commands(Any).
@@ -27,29 +36,49 @@ action() ->
     action([status]).
 
 available_commands(_WrongCommand) ->
-    OutString = " \
-    ",
+    OutString = "urlcronctl [actions]\n" 
+    "actions:\n" 
+    "   exit    - Takes down a urlcron node.\n"
+    "   stop    - Stops the running urlcron instance, without\n"
+    "             bringing down the node.\n"
+    "   start   - Start urlcron on an alive node.\n"
+    "   status  - Report the status of an alive node.\n"
+    "   restart - Restart urlcron on an alive node.",
     io:format("~s\n", [OutString]).
 
 display([]) ->
     do_nothing;
 display({Key, Val}) ->
-    ValStr = string:join(["[", Val, "]"], ""),
-    KeyValStr = string:join([atom_to_list(Key), ValStr], " - "),
-    display(KeyValStr);
+    display(Key),
+    display(" - ["),
+    display(Val),
+    display("]");
 display([{_Key, _Val}=Head | Rest]) ->
     display(Head),
+    display("\n"),
     display(Rest);
-display(String) ->
-    io:format("~s\n", [String]).
+display(Atom) when is_atom(Atom) ->
+    io:format("~p", [Atom]);
+display(String) when is_list(String) ->
+    io:format("~s", [String]).
 
 urlcron_exec(Module, Fun, Args) ->
     UrlcronNode = get_urlcron_node(),
     case rpc:call(UrlcronNode, Module, Fun, Args) of
-        {badrpc, nodedown} ->
-            {urlcron, "Dead"};
+        {badrpc, node_down} ->
+            [{urlcron, dead}];
+        {badrpc, _Reason} ->
+            [{urlcron, stopped}];        
         Response ->
             Response
+    end.
+
+urlcron_exec(Module, Fun, Args, OkResponse) ->
+    case urlcron_exec(Module, Fun, Args) of
+        [{urlcron, _Reason}] = Response ->
+            Response;
+        _Other ->
+            [{urlcron, OkResponse}]
     end.
 
 
