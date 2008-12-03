@@ -38,16 +38,22 @@ class UrlCron(object):
         return Response(json)
 
 
-def parse(param):
-    if isinstance(param, dict):
-        return Schedule(param)
-    return param
-
 class Response(object):
     def __init__(self, json):
         response_dict = simplejson.loads(json)
-        self.status = response_dict["status"]
-        self.data = util.parse(response_dict["data"])
+        if response_dict["status"]:
+            self.status = True
+        else:
+            self.status = False
+
+        self.data = Response.parse(response_dict["data"])
+
+    @staticmethod
+    def parse(param):
+        if isinstance(param, dict):
+            return Schedule(param)
+        return param
+
 
 
 

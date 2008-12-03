@@ -1,24 +1,28 @@
 from datetime import datetime
 
 def ensure(value, name):
-    if not value or (isinstance(value, str) and not value.strip()):
+    if not value or (isinstance(value, basestring) and not value.strip()):
         raise Exception("%s can not be undefined" % (name))
 
 def get_string(param_dict, key):
-    if param_dict[key].strip() == "undefined":
+    value = param_dict[key]
+
+    if isinstance(value, basestring) and value.strip() == "undefined":
         return None
 
-    return param_dict[key].strip()
+    return value.strip()
 
 def get_date(param_dict, key):
-    if isinstance(param_dict[key], str) and param_dict[key].strip() == "undefined":
+    date_dict = param_dict[key]
+
+    if not isinstance(date_dict, dict):
         return None
 
-    year = param_dict[key]['year']
-    month = param_dict[key]['month']
-    day = param_dict[key]['day']
-    hour = param_dict[key]['hour']
-    min = param_dict[key]['minute']
-    secs = param_dict[key]['seconds']
+    year = date_dict['year']
+    month = date_dict['month']
+    day = date_dict['day']
+    hour = date_dict['hour']
+    min = date_dict['minute']
+    secs = date_dict['seconds']
 
     return datetime(year, month, day, hour, min, secs)

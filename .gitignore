@@ -12,3 +12,4 @@ ebin
 dist
 build
 *.pyc
+*.egg-info

@@ -1,6 +1,6 @@
 import nose.tools
 import datetime
-import util
+from urlcron import util
 
 class TestPyCron(object):
     def test_ensure_fails_on_none_value(self):
