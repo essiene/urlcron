@@ -4,9 +4,17 @@
         get_datetime_diff/1,
         get_future_time/1,
         gen_schedule_name/0,
-        urlopen/1
+        urlopen/1,
+        ensure_started/1
        ]).
 
+ensure_started(App) ->
+    case application:start(App) of
+        ok ->
+            ok;
+        {error, {already_started, App}} ->
+            ok
+    end.
 
 get_datetime_diff(Date) ->
     Now = calendar:now_to_local_time(erlang:now()),
@@ -39,4 +47,3 @@ urlopen(Url) ->
     TimeCompleted = urlcron_util:get_future_time(0),
 
     {TimeStarted, TimeCompleted, Result}.
-       

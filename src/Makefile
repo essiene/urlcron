@@ -14,13 +14,13 @@ $(EBIN_DIR)/%.app: %.app
 
 
 OBJECTS= urlcron_util \
-		 schedule_store \
 		 urlcron_jsonutil \
+		 schedule_store schedule_util \
 		 schedule_data urlcron_schedule \
 		 urlcron_scheduler \
-		webservice urlcron_mochiweb \
-		urlcron_app urlcron_sup \
-		urlcron urlcronctl
+		 webservice urlcron_mochiweb \
+		 urlcron_app urlcron_sup \
+		 urlcron urlcronctl
 
 APP=urlcron
 
