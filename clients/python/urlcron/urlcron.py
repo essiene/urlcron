@@ -2,6 +2,23 @@ import weblib
 import util
 import simplejson
 
+def createResponse(func):
+
+    def inner(*args):
+        try:
+            json = func(*args)
+        except:
+            json = '{"status":0, "data":"Internal Error"}'
+
+
+        return Response(json)
+
+    inner.__name__ = func.__name__
+    inner.__dict__ = func.__dict__
+
+    return inner
+
+
 class UrlCron(object):
     def __init__(self, host, port):
         self.host = host
@@ -16,26 +33,24 @@ class UrlCron(object):
 
     def cancel(self, name):
         url = self.base_url + "/" + name
-        json = weblib.delete(url)
-        return Response(json)
+        return weblib.delete(url)
 
     def get(self, name):
         url = self.base_url + "/schedule/" + name
-        json = weblib.get(url)
-        return Response(json)
+        return weblib.get(url)
+
 
     def set_url(self, name, url):
         pass
 
+    @createResponse
     def enable(self, name):
         url = self.base_url + "/schedule/enable/" + name
-        json = weblib.get(url)
-        return Response(json)
+        return weblib.get(url)
 
     def disable(self, name):
         url = self.base_url + "/schedule/disable/" + name
-        json = weblib.get(url)
-        return Response(json)
+        return weblib.get(url)
 
 
 class Response(object):

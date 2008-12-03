@@ -40,20 +40,13 @@ def xurlopen(url, data=None):
     return res
 
 def get(url):
-    print url
     return urllib2.urlopen(url).read()
 
-@catchurlerror
 def post(url, data):
-    print url
-    print data
     return urllib2.urlopen(url, data).read()
 
 def delete(url):
-    print url
     return xurlopen(url).read()
 
 def put(url, data):
-    print url
-    print data
     return xurlopen(url, data).read()
