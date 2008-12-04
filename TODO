@@ -10,7 +10,6 @@ that have been implemented.
 - Need to support different HTTP methods, HTTP headers, etc
 when submitting url
 
-- We should not be able to re-create an "EXISTING" schedule, only update it.
 - Why can't we create schedules with 'atom' names?
 
 - /stats/ service is not yet implemented
