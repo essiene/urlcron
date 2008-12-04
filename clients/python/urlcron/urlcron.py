@@ -1,76 +1,7 @@
+import sys
 import weblib
 import util
 import simplejson
-
-def createResponse(func):
-
-    def inner(*args):
-        try:
-            json = func(*args)
-        except:
-            json = '{"status":0, "data":"Internal Error"}'
-
-
-        return Response(json)
-
-    inner.__name__ = func.__name__
-    inner.__dict__ = func.__dict__
-
-    return inner
-
-
-class UrlCron(object):
-    def __init__(self, host, port):
-        self.host = host
-        self.port = port
-        self.base_url = "http://%s:%s" % (host, port)
-
-    def create(self, name, start_time, url):
-        pass
-
-    def create(self, start_time, url):
-        pass
-
-    def cancel(self, name):
-        url = self.base_url + "/" + name
-        return weblib.delete(url)
-
-    def get(self, name):
-        url = self.base_url + "/schedule/" + name
-        return weblib.get(url)
-
-
-    def set_url(self, name, url):
-        pass
-
-    @createResponse
-    def enable(self, name):
-        url = self.base_url + "/schedule/enable/" + name
-        return weblib.get(url)
-
-    def disable(self, name):
-        url = self.base_url + "/schedule/disable/" + name
-        return weblib.get(url)
-
-
-class Response(object):
-    def __init__(self, json):
-        response_dict = simplejson.loads(json)
-        if response_dict["status"]:
-            self.status = True
-        else:
-            self.status = False
-
-        self.data = Response.parse(response_dict["data"])
-
-    @staticmethod
-    def parse(param):
-        if isinstance(param, dict):
-            return Schedule(param)
-        return param
-
-
-
 
 class Schedule(object):
     def __init__(self, data):
@@ -92,3 +23,82 @@ class Schedule(object):
         util.ensure(self.start_time, "start_time")
         util.ensure(self.url, "url")
         util.ensure(self.status, "status")
+
+
+class Response(object):
+    def __init__(self, json):
+        response_dict = simplejson.loads(json)
+        if response_dict["status"]:
+            self.status = True
+        else:
+            self.status = False
+
+        self.data = Response.parse(response_dict["data"])
+
+    @staticmethod
+    def parse(param):
+        if isinstance(param, dict):
+            return Schedule(param)
+        return param
+
+    @staticmethod
+    def to_response(func):
+
+        def inner(*args):
+            try:
+                json = func(*args)
+                return Response(json)
+            except:
+                (type, value, traceback) = sys.exc_info()
+                json = '{"status":0, "data":"%s"}' % (value)
+                return Response(json)
+
+        inner.__name__ = func.__name__
+        inner.__dict__ = func.__dict__
+
+        return inner
+
+class UrlCron(object):
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.base_url = "http://%s:%s" % (host, port)
+
+    @Response.to_response
+    def create(self, name, start_time, url):
+        pass
+
+    @Response.to_response
+    def create(self, start_time, url):
+        pass
+
+    @Response.to_response
+    def cancel(self, name):
+        url = self.base_url + "/" + name
+        return weblib.delete(url)
+
+    @Response.to_response
+    def get(self, name):
+        url = self.base_url + "/schedule/" + name
+        return weblib.get(url)
+
+
+    @Response.to_response
+    def set_url(self, name, url):
+        pass
+
+    @Response.to_response
+    def enable(self, name):
+        url = self.base_url + "/schedule/enable/" + name
+        return weblib.get(url)
+
+    @Response.to_response
+    def disable(self, name):
+        url = self.base_url + "/schedule/disable/" + name
+        return weblib.get(url)
+
+
+
+
+
+
