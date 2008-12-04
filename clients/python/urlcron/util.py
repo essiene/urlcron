@@ -24,7 +24,7 @@ def get_date(param_dict, key):
     day = date_dict['day']
     hour = date_dict['hour']
     min = date_dict['minute']
-    secs = date_dict['seconds']
+    secs = date_dict['second']
 
     return datetime(year, month, day, hour, min, secs)
 

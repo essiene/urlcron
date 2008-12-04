@@ -44,9 +44,9 @@ class Response(object):
     @staticmethod
     def to_response(func):
 
-        def inner(*args):
+        def inner(*args, **kw):
             try:
-                json = func(*args)
+                json = func(*args, **kw)
                 return Response(json)
             except:
                 (type, value, traceback) = sys.exc_info()
@@ -65,16 +65,24 @@ class UrlCron(object):
         self.base_url = "http://%s:%s" % (host, port)
 
     @Response.to_response
-    def create(self, name, start_time, url):
-        pass
+    def create(self, url, name=None, start_time=None):
+        appurl = self.base_url + "/schedule/"
 
-    @Response.to_response
-    def create(self, start_time, url):
-        pass
+        if not start_time:
+            start_time = datetime.datetime.now() + datetime.timedelta(seconds=60)
+
+        time_tuple = util.to_tuplelist(start_time)
+
+        if name:
+            data = util.urlencode(time_tuple, name=name, url=url)
+        else:
+            data = util.urlencode(time_tuple, url=url)
+
+        return weblib.post(appurl, data)
 
     @Response.to_response
     def cancel(self, name):
-        url = self.base_url + "/" + name
+        url = self.base_url + "/schedule/" + name
         return weblib.delete(url)
 
     @Response.to_response
@@ -96,9 +104,3 @@ class UrlCron(object):
     def disable(self, name):
         url = self.base_url + "/schedule/disable/" + name
         return weblib.get(url)
-
-
-
-
-
-

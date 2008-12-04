@@ -34,7 +34,7 @@ class TestResponse(object):
                             "day": 31,
                             "hour": 12,
                             "minute": 45,
-                            "seconds": 3
+                            "second": 3
                          },
                         "time_created" : {
                             "year": 2008,
@@ -42,7 +42,7 @@ class TestResponse(object):
                             "day": 30,
                             "hour": 12,
                             "minute": 45,
-                            "seconds": 3
+                            "second": 3
                          },
                         "time_started" : "undefined",
                         "time_completed" : "undefined",
@@ -87,7 +87,7 @@ class TestResponse(object):
                                 "day": 31,
                                 "hour": 12,
                                 "minute": 45,
-                                "seconds": 3
+                                "second": 3
                              },
                             "time_created" : {
                                 "year": 2008,
@@ -95,7 +95,7 @@ class TestResponse(object):
                                 "day": 30,
                                 "hour": 12,
                                 "minute": 45,
-                                "seconds": 3
+                                "second": 3
                              },
                             "time_started" : "undefined",
                             "time_completed" : "undefined",

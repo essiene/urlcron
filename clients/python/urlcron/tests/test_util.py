@@ -18,7 +18,7 @@ class TestPyCron(object):
         assert util.get_string(pdict, "key2") == "value"
 
     def test_get_date(self):
-        pdict = {"date1":"undefined", "date2": {"year":2008, "month":12, "day":3, "hour":12, "minute":45, "seconds":03}}
+        pdict = {"date1":"undefined", "date2": {"year":2008, "month":12, "day":3, "hour":12, "minute":45, "second":03}}
         assert util.get_date(pdict, "date1") == None
         assert util.get_date(pdict, "date2") == datetime.datetime(2008, 12, 3, 12, 45, 3)
 

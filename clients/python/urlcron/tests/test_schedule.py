@@ -13,7 +13,7 @@ class TestSchedule(object):
                     "day": 31,
                     "hour": 12,
                     "minute": 45,
-                    "seconds": 03
+                    "second": 03
                  },
 
                 "time_created" : {
@@ -22,7 +22,7 @@ class TestSchedule(object):
                     "day": 30,
                     "hour": 12,
                     "minute": 45,
-                    "seconds": 03
+                    "second": 03
                  },
 
                 "time_started" : "undefined",
@@ -63,7 +63,7 @@ class TestSchedule(object):
                     "day": 31,
                     "hour": 12,
                     "minute": 45,
-                    "seconds": 03
+                    "second": 03
                  },
 
                 "time_created" : "undefined",
