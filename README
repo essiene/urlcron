@@ -29,6 +29,7 @@ schedule_object -> {
 }
 
 Current features include:
+-------------------------
 
 - Create Schedule: POST /schedule?name=&year=&month=&day=&hour=&minute=&second=&url= (name= is optional)
   Returns = { status: 1|0, data: "scheduleName"} 
@@ -53,6 +54,7 @@ even after a crash.
 
 
 Features Coming:
+----------------
 
 - GET /schedule/ -> all schedules json
 - GET /stats/ -> various statistics
@@ -62,8 +64,20 @@ Features Coming:
 - Support for recurring schedules
 - Support for a CRON like syntax for configuring firing times
 
+Installation:
+-------------
+
+0. First grab and install erlcfg from git hub: git clone http://github.com/essiene/erlcfg.git
+   UrlCron uses erlcfg for reading its config files.
+
+1. After you've installed erlcfg, type make in the top urlcron directory.
+2. Copy config/urlcron.conf to /etc/urlcron.conf and edit it properly.
+3. make install
+4. uhh... that's it!
+
 
 How It Works Currently:
+-----------------------
 
 There are four major components:
 
@@ -101,31 +115,33 @@ Scheduler (urlcron_scheduler)
     
 
 Code Changes Coming:
-    - After this first naive implementation, I have discovered that it will
-    be better (process wise) to use just ONE FSM to keep all the timers, as
-    we will then have fewer processes overall on one node.
+--------------------
 
-    - Once the preceeding is achieved, more HTTP options support will be
-    added.
+- After this first naive implementation, I have discovered that it will
+be better (process wise) to use just ONE FSM to keep all the timers, as
+we will then have fewer processes overall on one node.
 
-    - We also need a way of detecting if a schedule should be fired again,
-    so that we can support recurring schedules. This would mean that instead
-    of just marking a schedule as completed, we'd check if it should be fired
-    again, then leave it as enabled. Though i'm not sure if I should keep
-    track of the results of the various times it fired. I'll probably do that
-    in a related table, which would mean, seperating the url status replies
-    from the schedule record itself, which is actually a good thing.
+- Once the preceeding is achieved, more HTTP options support will be
+added.
 
-    - Then we'll probably need a process to continually check if we should 
-    create running schedules from the schedules in the store, using some filters
-    like say, start all schedules that have their start times due in the next 15 minutes
-    or something crazy like that.
+- We also need a way of detecting if a schedule should be fired again,
+so that we can support recurring schedules. This would mean that instead
+of just marking a schedule as completed, we'd check if it should be fired
+again, then leave it as enabled. Though i'm not sure if I should keep
+track of the results of the various times it fired. I'll probably do that
+in a related table, which would mean, seperating the url status replies
+from the schedule record itself, which is actually a good thing.
 
-    - Also, once we being support for clustering, we should be able to let a process
-    run on the master node, that distributes the schedules due to be fired to
-    the different nodes using a simple round-robbin for a start, but eventually
-    an algorithm that can support least-weighted, etc.
+- Then we'll probably need a process to continually check if we should 
+create running schedules from the schedules in the store, using some filters
+like say, start all schedules that have their start times due in the next 15 minutes
+or something crazy like that.
 
-    - Also, a JSON-RPC interface may be tacked on, to allow spunkier? interactions.
+- Also, once we being support for clustering, we should be able to let a process
+run on the master node, that distributes the schedules due to be fired to
+the different nodes using a simple round-robbin for a start, but eventually
+an algorithm that can support least-weighted, etc.
+
+- Also, a JSON-RPC interface may be tacked on, to allow spunkier? interactions.
 
 Who's gonna do all this? Some poor looser... meh!
