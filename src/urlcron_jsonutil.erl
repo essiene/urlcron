@@ -68,7 +68,7 @@ to_json(Pid) when is_pid(Pid) ->
     list_to_binary(List);
 
 
-to_json({{Year, Month, Day}, {Hour, Minute, Seconds}}) ->
+to_json({{Year, Month, Day}, {Hour, Minute, Second}}) ->
     {struct,
         [
             {<<"year">>, Year},
@@ -76,7 +76,7 @@ to_json({{Year, Month, Day}, {Hour, Minute, Seconds}}) ->
             {<<"day">>, Day},
             {<<"hour">>, Hour},
             {<<"minute">>, Minute},
-            {<<"seconds">>, Seconds}
+            {<<"second">>, Second}
         ]                   
     };
     

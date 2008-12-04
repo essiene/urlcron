@@ -18,6 +18,9 @@
 -include("urlcron.hrl").
 
 
+post("/schedule/", Req) ->
+    post("/schedule", Req);
+
 post("/schedule", Req) ->
     QueryString = Req:parse_post(),
     Response = create_new_schedule(QueryString),
@@ -111,7 +114,7 @@ todate(QueryString) ->
     DD = erlang:list_to_integer(get_value("day", QueryString)),
     Hh = erlang:list_to_integer(get_value("hour", QueryString)),
     Mm = erlang:list_to_integer(get_value("minute", QueryString)),
-    Ss = erlang:list_to_integer(get_value("seconds", QueryString)),
+    Ss = erlang:list_to_integer(get_value("second", QueryString)),
     {{YY, MM, DD}, {Hh, Mm, Ss}}.
 
 get_basic_params(QueryString) ->
