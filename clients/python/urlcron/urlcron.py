@@ -93,7 +93,10 @@ class UrlCron(object):
 
     @Response.to_response
     def set_url(self, name, url):
-        pass
+        appurl = self.base_url + "/schedule/" + name
+        data = util.urlencode(url=url)
+
+        return weblib.put(appurl, data)
 
     @Response.to_response
     def enable(self, name):

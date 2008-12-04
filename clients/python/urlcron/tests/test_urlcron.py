@@ -39,3 +39,23 @@ class TestUrlCron(object):
 
         assert r3.status == False
         assert r3.data == "not_found"
+
+    def test_set_url(self):
+        start_time = datetime.datetime.now() + datetime.timedelta(seconds=60*5)
+        r = self.urlcron.create("http://localhost:8118/echo/foo_bar", start_time=start_time)
+
+        assert r.status == True
+
+        r2 = self.urlcron.get(r.data)
+        assert r2.data.url == "http://localhost:8118/echo/foo_bar"
+
+        r3 = self.urlcron.set_url(r.data, "http://localhost:9119/add?msisdn=1234&callid=1")
+
+        print r3.status
+        print r3.data
+
+        assert r3.status == True
+
+        r4 = self.urlcron.get(r.data)
+        assert r4.data.url == "http://localhost:9119/add?msisdn=1234&callid=1"
+

@@ -96,7 +96,7 @@ delete_schedule(Name) ->
 
 
 update_schedule(Name, QueryString) ->
-    {_StartTime, Url} = get_basic_params(QueryString),
+    Url = get_value("url", QueryString),
     urlcron_scheduler:set(Name, url, Url).
 
 

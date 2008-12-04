@@ -40,5 +40,11 @@ loop(Req) ->
     Method1 = atom_to_list(Method),
     Method2 = string:to_lower(Method1),
     Method3 = list_to_atom(Method2),
-    error_logger:error_msg("Dispatching webservice: Method = ~s, Path = ~s~n", [Method3, Req:get(path)]),
+    error_logger:info_report([
+            "Dispatching webservice", 
+            {method, Method3}, 
+            {path, Req:get(path)}, 
+            {query_string, Req:parse_qs()},
+            {form_data, Req:parse_post()}
+    ]),
     apply(webservice, Method3, [Req:get(path), Req]).
