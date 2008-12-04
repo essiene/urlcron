@@ -1,10 +1,131 @@
-A simple erlang scheduler callback webservice.
+URLCron is simply what is sounds like. A cron implementation for dealing with URLs
+in the WWW environment.
 
-You submit a schedule:
+Ok... that's what it will be when its fully matured... right now though... its just
+a simple one-shot scheduler, that can callback a URL via GET when the schedule fires off.
 
-POST /schedule?name=NAME&time=TIME&calback="" (create new schedule)
-PUT /schedule/name?time=TIME&callback="" (updates the schedule)
-DELETE /schedule/name
-GET /schedule/name -> details
-GET /schedule/ -> all schedules json
-GET /stats/ -> various statistics
+All interactions are strictly over a REST service that returns a JSON response_object().
+
+response_object -> {
+    status : 1 | 0,
+    data : string() | schedule_object ()
+}
+
+schedule_object -> {
+    name : string(),
+    pid  : pid() | undefined,
+
+    start_time: datetime(),
+    time_created: datetime(),
+    time_started: datetime() | undefined,
+    time_completed: datetime() | undefined,
+
+    url: string(),
+    url_status: integer() | error | undefined ,
+    url_headers: list() | undefined,
+    url_content: string() | undefined,
+
+    status: enabled | disabled | completed
+}
+
+Current features include:
+
+- Create Schedule: POST /schedule?name=&year=&month=&day=&hour=&minute=&second=&url= (name= is optional)
+  Returns = { status: 1|0, data: "scheduleName"} 
+
+- Cancel Schedule: DELETE /schedule/name
+  Returns = { status: 1|0, data: string() }
+
+- Get A Schedule Object:  GET /schedule/name
+  Returns = { status: 1|0, data:schedule_object() }
+
+- Update A Schedules Callback URL: PUT /schedule/name?url=
+  Returns = { status: 1|0, data: string()}
+
+- Enable A Schedule: GET /schedule/name/enable
+  Returns = { status: 1|0, data: string()}
+
+- Disable A Schedule: GET /schedule/name/disable
+  Returns = { status: 1|0, data: string()}
+
+- Persistence - We can save and resume schedules on restarting the node
+even after a crash. 
+
+
+Features Coming:
+
+- GET /schedule/ -> all schedules json
+- GET /stats/ -> various statistics
+- Support for various HTTP parameters and headers for target URL schedules
+- Proper support for running a scheduling cluster (especially, support
+  for taking over schedules from a shutting down node)
+- Support for recurring schedules
+- Support for a CRON like syntax for configuring firing times
+
+
+How It Works Currently:
+
+There are four major components:
+
+Mochiweb powered webservice (urlcron_mochiweb)
+    This is just a front end and does not feature much in
+    anything else.
+
+Mnesia Schedule Store: (scheduler_store)
+    This is a abstraction of the mnesia table that stores the 
+    schedule records in the schedule table. 
+
+    The record is defined in urlcron.hrl.
+    
+Schedule (urlcron_schedule)
+    There are actually two types of schedules. A running schedule
+    and a not-running schedule (booya!). 
+
+    Every schedule is primarily a record stored in the mnesia store,
+    but a running schedule is an FSM with one goal: To create a timer
+    that will fire when the schedule's start_time is reached. On firing,
+    the FSM will attempt the fetch the URL and update the schedule's record
+    with relavant result information, and exit.
+
+    When a schedule is disabled or completed, it can never have a running
+    instance anymore. Only enabled schedules are allowed to be run.
+
+    When the system starts up, the scheduler will start all enabled schedules.
+    
+Scheduler (urlcron_scheduler)
+    This is a gen_server which acts as the entry point into using
+    the rest of the system. When a request is made to create a
+    schedule, the scheduler does two things (scheduler_util) it
+    creates the running schedules and the schedules and is incharge
+    of orchestrating the whole process.
+    
+
+Code Changes Coming:
+    - After this first naive implementation, I have discovered that it will
+    be better (process wise) to use just ONE FSM to keep all the timers, as
+    we will then have fewer processes overall on one node.
+
+    - Once the preceeding is achieved, more HTTP options support will be
+    added.
+
+    - We also need a way of detecting if a schedule should be fired again,
+    so that we can support recurring schedules. This would mean that instead
+    of just marking a schedule as completed, we'd check if it should be fired
+    again, then leave it as enabled. Though i'm not sure if I should keep
+    track of the results of the various times it fired. I'll probably do that
+    in a related table, which would mean, seperating the url status replies
+    from the schedule record itself, which is actually a good thing.
+
+    - Then we'll probably need a process to continually check if we should 
+    create running schedules from the schedules in the store, using some filters
+    like say, start all schedules that have their start times due in the next 15 minutes
+    or something crazy like that.
+
+    - Also, once we being support for clustering, we should be able to let a process
+    run on the master node, that distributes the schedules due to be fired to
+    the different nodes using a simple round-robbin for a start, but eventually
+    an algorithm that can support least-weighted, etc.
+
+    - Also, a JSON-RPC interface may be tacked on, to allow spunkier? interactions.
+
+Who's gonna do all this? Some poor looser... meh!

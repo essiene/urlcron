@@ -2,15 +2,15 @@
 it crashes it can recover properly. This will need to be well
 thought out.
 
-- We need to implement schedule restarting on scheduler restart
+- We need to properly test the schedule resurrection features
+that have been implemented.
 
-- When the scheduler is going down, we need to "save" or "stop" 
-all ongoing schedules
+- We need to move the multiple fsms into just one fsm
 
 - Need to support different HTTP methods, HTTP headers, etc
 when submitting url
 
-
-- We should not be able to re-create and "EXISTING" schedule, only update it.
-
+- We should not be able to re-create an "EXISTING" schedule, only update it.
 - Why can't we create schedules with 'atom' names?
+
+- /stats/ service is not yet implemented
