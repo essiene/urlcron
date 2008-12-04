@@ -8,7 +8,7 @@ All interactions are strictly over a REST service that returns a JSON response_o
 
 response_object -> {
     status : 1 | 0,
-    data : string() | schedule_object ()
+    data : string() | schedule_object()
 }
 
 schedule_object -> {
