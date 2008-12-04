@@ -13,103 +13,43 @@ create_new_schedule_test() ->
         {"day","13"},
         {"hour","15"},
         {"minute","22"},
-        {"seconds","33"},
-        {"name","xmas"},
+        {"second","33"},
+        {"name","xmase"},
         {"url","google"}
     ],
     Result = webservice:create_new_schedule(QueryString),
-    ?assertEqual({ok, "xmas"}, Result).
-
-enable_schedule_test() ->
-    QueryString = [
-        {"year","2008"},
-        {"month","12"},
-        {"day","13"},
-        {"hour","15"},
-        {"minute","22"},
-        {"seconds","33"},
-        {"name","xmas"},
-        {"url","google"}
-    ],
-
-    {ok, "xmas"} = webservice:create_new_schedule(QueryString),
-    Result = webservice:enable_schedule("xmas"),
-    ?assertEqual(ok, Result).
-
-disable_schedule_test() ->
-    QueryString = [
-        {"year","2008"},
-        {"month","12"},
-        {"day","13"},
-        {"hour","15"},
-        {"minute","22"},
-        {"seconds","33"},
-        {"name","xmas"},
-        {"url","google"}
-    ],
-
-    {ok, "xmas"} = webservice:create_new_schedule(QueryString),
-    Result = webservice:disable_schedule("xmas"),
-    ?assertEqual(ok, Result).
-
-
-view_schedule_test() ->
-    QueryString = [
-        {"year","2008"},
-        {"month","12"},
-        {"day","13"},
-        {"hour","15"},
-        {"minute","22"},
-        {"seconds","33"},
-        {"name","xmas"},
-        {"url","google"}
-    ],
-    {ok, "xmas"} = webservice:create_new_schedule(QueryString),
-
-    {ok, Schedule} = webservice:view_schedule("xmas"),
-    ?assertEqual(Schedule#schedule.name, "xmas").
-
-delete_schedule_test() ->
-    QueryString = [
-        {"year","2008"},
-        {"month","12"},
-        {"day","13"},
-        {"hour","15"},
-        {"minute","22"},
-        {"seconds","33"},
-        {"name","xmas"},
-        {"url","google"}
-    ],
-    {ok, "xmas"} = webservice:create_new_schedule(QueryString),
-
-    Result = webservice:delete_schedule("xmas"),
-    ?assertEqual(ok, Result).
+    ?assertEqual({ok, "xmase"}, Result).
 
 update_schedule_test() ->
-    QueryString = [
-        {"year","2008"},
-        {"name","xmas"},
-        {"month","12"},
-        {"day","13"},
-        {"hour","15"},
-        {"minute","22"},
-        {"seconds","33"},
-        {"url","google"}
-    ],
-    {ok, "xmas"} = webservice:create_new_schedule(QueryString),
-
     QueryStringUpdate = [
-        {"year","2008"},
-        {"month","12"},
-        {"day","13"},
-        {"hour","15"},
-        {"minute","22"},
-        {"seconds","33"},
-        {"url","google"}
+        {"url","froogle"}
     ],
-    
-    Result = webservice:update_schedule("xmas", QueryStringUpdate),
+
+    Response = webservice:update_schedule("xmase", QueryStringUpdate),
+    ?assertEqual(ok, Response).
+
+disable_schedule_test() ->
+    Result = webservice:disable_schedule("xmase"),
     ?assertEqual(ok, Result).
+
+get_schedule_test() ->
+    {ok, Schedule} = webservice:get_schedule("xmase"),
+    ?assertEqual("xmase", Schedule#schedule.name),
+    ?assertEqual(disabled, Schedule#schedule.status),
+    ?assertEqual("froogle", Schedule#schedule.url).
+
+enable_schedule_test() ->
+    Result = webservice:enable_schedule("xmase"),
+    ?assertEqual(ok, Result).
+
+
+delete_schedule_test() ->
+    Result = webservice:delete_schedule("xmase"),
+    ?assertEqual(ok, Result),
+
+    Result1 = webservice:get_schedule("xmase"),
+    ?assertEqual({error, not_found}, Result1).
+
 
 destroy_test() ->
     schedule_store:destroy(erlcfg:new("urlcron.conf")).

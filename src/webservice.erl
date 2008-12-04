@@ -8,7 +8,7 @@
 
 -export([
         create_new_schedule/1,
-        view_schedule/1,
+        get_schedule/1,
         delete_schedule/1,
         update_schedule/2,
         enable_schedule/1,
@@ -53,7 +53,7 @@ get("/schedule/disable/" ++ Name, Req) ->
 
 
 get("/schedule/" ++ Name, Req) ->
-    Response = view_schedule(Name),
+    Response = get_schedule(Name),
     Json = urlcron_jsonutil:to_json(Response),
     Req:ok({"text/javascript", mochijson2:encode(Json)});
 
@@ -87,7 +87,7 @@ disable_schedule(Name) ->
     urlcron_scheduler:disable(Name).
 
 
-view_schedule(Name) ->
+get_schedule(Name) ->
     urlcron_scheduler:get(Name).
 
 
@@ -101,37 +101,28 @@ update_schedule(Name, QueryString) ->
 
 
 create_new_schedule(QueryString) ->
-    case get_basic_params(QueryString) of
-        {StartTime, Url, Name} ->
-            urlcron_scheduler:create(Name, StartTime, Url);
-        {StartTime, Url} ->
-            urlcron_scheduler:create(StartTime, Url)
+    StartTime = get_datetime(QueryString),
+    Url = get_value("url", QueryString),
+    case proplists:get_value("name", QueryString) of
+        undefined ->
+            urlcron_scheduler:create(StartTime, Url);
+        Name ->
+            urlcron_scheduler:create(Name, StartTime, Url)
     end.
 
-todate(QueryString) ->
-    YY = erlang:list_to_integer(get_value("year", QueryString)),
+get_datetime(QueryString) ->
+    Yyyy = erlang:list_to_integer(get_value("year", QueryString)),
     MM = erlang:list_to_integer(get_value("month", QueryString)),
     DD = erlang:list_to_integer(get_value("day", QueryString)),
-    Hh = erlang:list_to_integer(get_value("hour", QueryString)),
+    HH = erlang:list_to_integer(get_value("hour", QueryString)),
     Mm = erlang:list_to_integer(get_value("minute", QueryString)),
     Ss = erlang:list_to_integer(get_value("second", QueryString)),
-    {{YY, MM, DD}, {Hh, Mm, Ss}}.
+    {{Yyyy, MM, DD}, {HH, Mm, Ss}}.
 
-get_basic_params(QueryString) ->
-    StartTime = todate(QueryString),    
-    Url = get_value("url", QueryString),
-    Name = get_value("name", QueryString),
-    case Name of 
-        [] ->
-            {StartTime, Url};
+get_value(Key, QueryString) ->
+    case proplists:get_value(Key, QueryString) of
+        undefined ->
+            throw({required_parameter_missing, Key});
         Value ->
-            {StartTime, Url, Value}
-    end.            
-
-get_value(Key, TupleList) ->
-    case lists:keysearch(Key, 1, TupleList) of
-        {value, {Key, Value}} ->
-            Value;
-        false ->
-            []
-    end.            
+            Value
+    end.

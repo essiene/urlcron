@@ -15,10 +15,16 @@ new_named_schedule_test() ->
     {ok, Schedule} = urlcron_scheduler:get("schedule01"),
     ?assertEqual(true, is_process_alive(Schedule#schedule.pid)).
 
+new_existing_schedule_test() ->
+    Starttime = urlcron_util:get_future_time(60000),
+    Result = urlcron_scheduler:create("schedule01", Starttime, "url"),
+    ?assertEqual({error, already_exists}, Result).
+
 new_anonymous_schedule_test() ->
     Starttime = urlcron_util:get_future_time(60000),
     {ok, Name} = urlcron_scheduler:create(Starttime, "url"),
     ?assertEqual(1, string:str(Name, "schedule.")).
+
 
 new_schedule_invalid_start_time_test() ->
     Starttime = urlcron_util:get_future_time(999),
@@ -38,7 +44,7 @@ get_test() ->
     ?assertEqual(Expected, {Name, StartTime1, Url, Status}).
 
 get_not_found_test() ->
-    Result = urlcron_scheduler:get("schedule03"),
+    Result = urlcron_scheduler:get("schedule103"),
     Expected = {error, not_found},
     ?assertEqual(Expected, Result).
 
@@ -46,7 +52,7 @@ set_url_test() ->
     ?assertEqual(ok, urlcron_scheduler:set("schedule01", url, "google.com")).
 
 set_url_not_found_test() ->
-    ?assertEqual({error, not_found}, urlcron_scheduler:set("schedule03", url, "google.com")).
+    ?assertEqual({error, not_found}, urlcron_scheduler:set("schedule103", url, "google.com")).
 
 set_url_on_completed_test() ->
     StartTime = urlcron_util:get_future_time(1000),

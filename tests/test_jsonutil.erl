@@ -4,7 +4,7 @@
 
 helper_test() ->
     urlcron_scheduler:start(erlcfg:new("urlcron.conf")).
-    
+
 
 ok_test() ->
     Result = urlcron_jsonutil:to_json(ok),
@@ -41,14 +41,14 @@ time_test() ->
     Result = urlcron_jsonutil:to_json(Time),
     {{Year, Month, Day}, {Hour, Minute, Seconds}} = Time,
     Expected =  {struct,
-       [
-           {<<"year">>, Year},
-           {<<"month">>, Month},
-           {<<"day">>, Day},
-           {<<"hour">>, Hour},
-           {<<"minute">>, Minute},
-           {<<"seconds">>, Seconds}                                                       
-       ]
+        [
+            {<<"year">>, Year},
+            {<<"month">>, Month},
+            {<<"day">>, Day},
+            {<<"hour">>, Hour},
+            {<<"minute">>, Minute},
+            {<<"second">>, Seconds}                                                       
+        ]
     },
     ?assertEqual(Expected, Result).
 
@@ -68,13 +68,13 @@ schedule_object_test() ->
     Name = "schedule1",
     {{Year, Month, Day}, {Hour, Minute, Seconds}} = Time,
     Schedule = #schedule{
-                    name = Name,
-                    start_time = Time,
-                    status = enabled,
-                    url = Url                        
-                },
+        name = Name,
+        start_time = Time,
+        status = enabled,
+        url = Url                        
+    },
     Result = urlcron_jsonutil:to_json(Schedule),  
-    
+
     {{YY, MM, DD}, {HH, MN, SS}} = urlcron_util:get_future_time(0),
 
     Expected = {struct,
@@ -82,26 +82,26 @@ schedule_object_test() ->
             {<<"name">>, <<"schedule1">>},
             {<<"pid">>, <<"undefined">>},
             {<<"start_time">>, {struct,
-                                   [
-                                       {<<"year">>, Year},
-                                       {<<"month">>, Month},
-                                       {<<"day">>, Day},
-                                       {<<"hour">>, Hour},
-                                       {<<"minute">>, Minute},
-                                       {<<"seconds">>, Seconds}                                                       
-                                   ]
-                               }
+                    [
+                        {<<"year">>, Year},
+                        {<<"month">>, Month},
+                        {<<"day">>, Day},
+                        {<<"hour">>, Hour},
+                        {<<"minute">>, Minute},
+                        {<<"second">>, Seconds}                                                       
+                    ]
+                }
             },
             {<<"time_created">>, {struct,
-                                   [
-                                       {<<"year">>, YY},
-                                       {<<"month">>, MM},
-                                       {<<"day">>, DD},
-                                       {<<"hour">>, HH},
-                                       {<<"minute">>, MN},
-                                       {<<"seconds">>, SS}                                                       
-                                   ]
-                               }
+                    [
+                        {<<"year">>, YY},
+                        {<<"month">>, MM},
+                        {<<"day">>, DD},
+                        {<<"hour">>, HH},
+                        {<<"minute">>, MN},
+                        {<<"second">>, SS}                                                       
+                    ]
+                }
             },
             {<<"time_started">>, <<"undefined">>},
             {<<"time_completed">>, <<"undefined">>},
@@ -121,45 +121,45 @@ ok_schedule_object_test() ->
     Name = "schedule1",
     {{Year, Month, Day}, {Hour, Minute, Seconds}} = Time,
     Schedule = #schedule{
-                    name = Name,
-                    start_time = Time,
-                    status = enabled,
-                    url = Url                        
-                },
+        name = Name,
+        start_time = Time,
+        status = enabled,
+        url = Url                        
+    },
     Result = urlcron_jsonutil:to_json({ok, Schedule}),  
-    
+
     {{YY, MM, DD}, {HH, MN, SS}} = urlcron_util:get_future_time(0),
 
     Expected = {struct,        
         [
             {<<"status">>, 1},
-            {<<"data">>, {struct,
-                             [
-                                {<<"name">>, <<"schedule1">>},
-                                {<<"pid">>, <<"undefined">>},
-                                {<<"start_time">>, {struct,
-                                                       [
-                                                           {<<"year">>, Year}, {<<"month">>, Month},{<<"day">>, Day},
-                                                           {<<"hour">>, Hour}, {<<"minute">>, Minute},{<<"seconds">>, Seconds}                                                       
-                                                       ]
-                                                   }
-                                },
-                                {<<"time_created">>, {struct,
-                                                       [
-                                                           {<<"year">>, YY},{<<"month">>, MM},{<<"day">>, DD},
-                                                           {<<"hour">>, HH},{<<"minute">>, MN},{<<"seconds">>, SS}                                                       
-                                                       ]
-                                                   }
-                                },
-                                {<<"time_started">>, <<"undefined">>},
-                                {<<"time_completed">>, <<"undefined">>},
-                                {<<"url">>, <<"http://localhost:8118">>},
-                                {<<"url_status">>, <<"undefined">>},
-                                {<<"url_headers">>, <<"undefined">>},
-                                {<<"url_content">>, <<"undefined">>},
-                                {<<"status">>, <<"enabled">>}
-                             ]
-                         }
+            {<<"data">>, {struct, 
+                    [ 
+                        {<<"name">>, <<"schedule1">>},
+                        {<<"pid">>, <<"undefined">>},
+                        {<<"start_time">>, {struct,
+                                [
+                                    {<<"year">>, Year}, {<<"month">>, Month},{<<"day">>, Day},
+                                    {<<"hour">>, Hour}, {<<"minute">>, Minute},{<<"second">>, Seconds}
+                                ]
+                            }
+                        },
+                        {<<"time_created">>, {struct,
+                                [
+                                    {<<"year">>, YY},{<<"month">>, MM},{<<"day">>, DD},
+                                    {<<"hour">>, HH},{<<"minute">>, MN},{<<"second">>, SS}                                                       
+                                ]
+                            }
+                        },
+                        {<<"time_started">>, <<"undefined">>},
+                        {<<"time_completed">>, <<"undefined">>},
+                        {<<"url">>, <<"http://localhost:8118">>},
+                        {<<"url_status">>, <<"undefined">>},
+                        {<<"url_headers">>, <<"undefined">>},
+                        {<<"url_content">>, <<"undefined">>},
+                        {<<"status">>, <<"enabled">>}
+                    ]
+                }
             }
         ]
     },

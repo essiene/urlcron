@@ -27,16 +27,21 @@ if_found_schedule(Name, Fun) ->
     end.
 
 create(Name, StartTime, Url) ->
-    case urlcron_schedule:start(Name, StartTime) of
-        {error, _Reason} = Reply ->
-            Reply;
-        {ok, Pid} ->
-            case schedule_store:add(Name, Pid, StartTime, Url, enabled) of
-                {error, _Reason} = Reply1 ->
-                    Reply1;
-                ok ->
-                    {ok, Name}
-            end
+    case schedule_store:get(Name) of
+        {error, not_found} ->
+            case urlcron_schedule:start(Name, StartTime) of
+                {error, _Reason} = Reply ->
+                    Reply;
+                {ok, Pid} ->
+                    case schedule_store:add(Name, Pid, StartTime, Url, enabled) of
+                        {error, _Reason} = Reply1 ->
+                            Reply1;
+                        ok ->
+                            {ok, Name}
+                    end
+            end;
+        _Schedule ->
+            {error, already_exists}
     end.
 
 cancel(Name) ->
