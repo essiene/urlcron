@@ -67,7 +67,7 @@ Features Coming:
 Installation:
 -------------
 
-0. First grab and install erlcfg from git hub: git clone git@github.com/essiene/erlcfg.git
+0. First grab and install erlcfg from git hub: git clone git@github.com:essiene/erlcfg.git
    UrlCron uses erlcfg for reading its config files.
 
 1. After you've installed erlcfg, type make in the top urlcron directory.
