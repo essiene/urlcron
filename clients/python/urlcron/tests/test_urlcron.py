@@ -7,17 +7,32 @@ class TestUrlCron(object):
         self.urlcron = urlcron.UrlCron("localhost", 8118)
 
     def test_create_with_name(self):
+        self.urlcron.cancel("pyschedule1")
+
         onehour = datetime.datetime.now() + datetime.timedelta(seconds=60*60)
         r = self.urlcron.create("http://localhost:8118/echo/foo", name="pyschedule1", start_time=onehour)
 
         assert r.status == True
         assert r.data == "pyschedule1"
 
+    def test_create_with_string_time_format(self):
+        r = self.urlcron.create("http://localhost:8118/echo/foo", start_time="20380101000000", format="%Y%m%d%H%M%S", name="formated1")
+
+        print r.data
+        assert r.data == "formated1"
+
+        r1 = self.urlcron.get("formated1")
+        print r1.data
+
+        self.urlcron.cancel("formated1")
+
+
     def test_create_anonymous(self):
         onehour = datetime.datetime.now() + datetime.timedelta(seconds=60*60)
         r = self.urlcron.create("http://localhost:8118/echo/foo", start_time=onehour)
 
         assert r.status == True
+
 
     def test_get(self):
         r = self.urlcron.get("pyschedule1")

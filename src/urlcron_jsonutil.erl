@@ -25,10 +25,12 @@ to_json({ok, Data}) ->
 
 
 to_json({error, Data}) ->
+    S = io_lib:format("~p", [Data]),
+
     {struct, 
         [
             {<<"status">>, 0},
-            {<<"data">>, to_json(Data)}
+            {<<"data">>, list_to_binary(S)}
         ]
     };
 

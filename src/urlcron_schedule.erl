@@ -69,11 +69,17 @@ running(Request, _From, State) ->
 
 % Generic gen_fsm callbacks
 init([Name, StartTime]) ->
+    error_logger:info_report([new_running_schedule, {name, Name}, {starttime, StartTime}]),
+
     case urlcron_util:get_datetime_diff(StartTime) of
         MilliSecs when MilliSecs > 999 ->
-            TimerRef = gen_fsm:send_event_after(MilliSecs, wakeup),
-            Data = schedule_data:new(Name, TimerRef),
-            {ok, running, Data};
+            case gen_fsm:send_event_after(MilliSecs, wakeup) of
+                {error, Reason} ->
+                    {stop, Reason};
+                TimerRef ->
+                    Data = schedule_data:new(Name, TimerRef),
+                    {ok, running, Data}
+            end;
         _MilliSecs ->
             {stop, schedule_will_never_run}
     end.

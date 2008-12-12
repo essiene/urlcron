@@ -24,6 +24,7 @@ post("/schedule/", Req) ->
 post("/schedule", Req) ->
     QueryString = Req:parse_post(),
     Response = create_new_schedule(QueryString),
+    error_logger:info_report([new_schedule, {reponse, Response}]),
     Json = urlcron_jsonutil:to_json(Response),
     Req:ok({"text/javascript", mochijson2:encode(Json)}).
 
@@ -54,6 +55,7 @@ get("/schedule/disable/" ++ Name, Req) ->
 
 get("/schedule/" ++ Name, Req) ->
     Response = get_schedule(Name),
+    error_logger:info_msg("~p~n", [Response]),
     Json = urlcron_jsonutil:to_json(Response),
     Req:ok({"text/javascript", mochijson2:encode(Json)});
 

@@ -1,4 +1,5 @@
 import sys
+import datetime
 import weblib
 import util
 import simplejson
@@ -65,11 +66,15 @@ class UrlCron(object):
         self.base_url = "http://%s:%s" % (host, port)
 
     @Response.to_response
-    def create(self, url, name=None, start_time=None):
+    def create(self, url, name=None, start_time=None, format=None):
         appurl = self.base_url + "/schedule/"
 
         if not start_time:
             start_time = datetime.datetime.now() + datetime.timedelta(seconds=60)
+        else:
+            if format:
+                start_time = datetime.datetime.strptime(start_time, format)
+
 
         time_tuple = util.to_tuplelist(start_time)
 
